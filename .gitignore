@@ -9,3 +9,4 @@ doxgen_generated
 doc
 .vscode
 config/mynteye
+**.pyc
