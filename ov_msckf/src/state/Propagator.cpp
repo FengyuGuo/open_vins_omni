@@ -98,6 +98,7 @@ void Propagator::propagate_and_clone(std::shared_ptr<State> state, double timest
       dt_summed += prop_data.at(i + 1).timestamp - prop_data.at(i).timestamp;
     }
   }
+  // PRINT_DEBUG("time1: %f, time0: %f, dt_summer: %f, abs((time1 - time0) - dt_summed: %f\n", time1, time0, dt_summed, std::abs((time1 - time0) - dt_summed));
   assert(std::abs((time1 - time0) - dt_summed) < 1e-4);
 
   // Last angular velocity (used for cloning when estimating time offset)

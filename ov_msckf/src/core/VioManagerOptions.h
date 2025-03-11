@@ -100,6 +100,12 @@ struct VioManagerOptions {
   /// The path to the file we will record the timing information into
   std::string record_timing_filepath = "ov_msckf_timing.txt";
 
+  /// Known time shift from imu to camera
+  double imu_to_camera_time_shift = 0.0;
+
+  /// Unit of imu angular velocity. 0 for rad/s, 1 for deg/s
+  int imu_angular_velocity_unit = 0; 
+
   /**
    * @brief This function will load print out all estimator settings loaded.
    * This allows for visual checking that everything was loaded properly from ROS/CMD parsers.

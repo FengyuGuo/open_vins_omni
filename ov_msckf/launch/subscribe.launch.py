@@ -13,11 +13,11 @@ launch_args = [
         name="ov_enable", default_value="true", description="enable OpenVINS node"
     ),
     DeclareLaunchArgument(
-        name="rviz_enable", default_value="false", description="enable rviz node"
+        name="rviz_enable", default_value="true", description="enable rviz node"
     ),
     DeclareLaunchArgument(
         name="config",
-        default_value="euroc_mav",
+        default_value="yarbot",
         description="euroc_mav, tum_vi, rpng_aruco...",
     ),
     DeclareLaunchArgument(
@@ -27,23 +27,34 @@ launch_args = [
     ),
     DeclareLaunchArgument(
         name="verbosity",
-        default_value="INFO",
+        default_value="DEBUG",
         description="ALL, DEBUG, INFO, WARNING, ERROR, SILENT",
     ),
     DeclareLaunchArgument(
         name="use_stereo",
-        default_value="true",
+        default_value="false",
         description="if we have more than 1 camera, if we should try to track stereo constraints between pairs",
     ),
     DeclareLaunchArgument(
         name="max_cameras",
-        default_value="2",
+        default_value="1",
         description="how many cameras we have 1 = mono, 2 = stereo, >2 = binocular (all mono tracking)",
     ),
     DeclareLaunchArgument(
         name="save_total_state",
         default_value="false",
         description="record the total state with calibration and features to a txt file",
+    ),
+    DeclareLaunchArgument(
+        name="imu_time_shift",
+        default_value="1741072367.628", # 0310 dataset
+        # default_value="0.0",
+        description="known time shift from imu to camera"
+    ),
+    DeclareLaunchArgument(
+        name="imu_angular_velocity_unit",
+        default_value="deg/s",
+        description="unit of imu angular velocity"
     )
 ]
 
@@ -51,7 +62,9 @@ def launch_setup(context):
     config_path = LaunchConfiguration("config_path").perform(context)
     if not config_path:
         configs_dir = os.path.join(get_package_share_directory("ov_msckf"), "config")
+        print(configs_dir)
         available_configs = os.listdir(configs_dir)
+        # print(available_configs)
         config = LaunchConfiguration("config").perform(context)
         if config in available_configs:
             config_path = os.path.join(
@@ -86,6 +99,8 @@ def launch_setup(context):
             {"max_cameras": LaunchConfiguration("max_cameras")},
             {"save_total_state": LaunchConfiguration("save_total_state")},
             {"config_path": config_path},
+            {"imu_time_shift": LaunchConfiguration("imu_time_shift")},
+            {"imu_angular_velocity_unit": LaunchConfiguration("imu_angular_velocity_unit")}
         ],
     )
 

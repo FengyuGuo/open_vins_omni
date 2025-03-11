@@ -164,7 +164,6 @@ VioManager::VioManager(VioManagerOptions &params_) : thread_init_running(false),
 }
 
 void VioManager::feed_measurement_imu(const ov_core::ImuData &message) {
-
   // The oldest time we need IMU with is the last clone
   // We shouldn't really need the whole window, but if we go backwards in time we will
   double oldest_time = state->margtimestep();
@@ -656,6 +655,7 @@ void VioManager::do_feature_propagate_update(const ov_core::CameraData &message)
              state->_imu->pos()(2), distance);
   PRINT_INFO("bg = %.4f,%.4f,%.4f | ba = %.4f,%.4f,%.4f\n", state->_imu->bias_g()(0), state->_imu->bias_g()(1), state->_imu->bias_g()(2),
              state->_imu->bias_a()(0), state->_imu->bias_a()(1), state->_imu->bias_a()(2));
+  PRINT_INFO("v = %.4f,%.4f,%.4f v_norm = %.4f\n", state->_imu->vel()(0), state->_imu->vel()(1), state->_imu->vel()(2), state->_imu->vel().norm());
 
   // Debug for camera imu offset
   if (state->_options.do_calib_camera_timeoffset) {

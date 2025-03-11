@@ -81,6 +81,17 @@ int main(int argc, char **argv) {
 
   // Create our VIO system
   VioManagerOptions params;
+#if ROS_AVAILABLE == 2
+  node->get_parameter<double>("imu_time_shift", params.imu_to_camera_time_shift);
+  PRINT_INFO("imu to camera time shift: %f\n", params.imu_to_camera_time_shift);
+  std::string angular_vel_unit;
+  node->get_parameter<std::string>("imu_angular_velocity_unit", angular_vel_unit);
+  if (angular_vel_unit == "deg/s")
+  {
+    params.imu_angular_velocity_unit = 1;
+    PRINT_INFO("imu angular velocity: deg/s\n");
+  }
+#endif
   params.print_and_load(parser);
   params.use_multi_threading_subs = true;
   sys = std::make_shared<VioManager>(params);

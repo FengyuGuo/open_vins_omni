@@ -31,6 +31,8 @@
 #include "utils/print.h"
 #include "utils/sensor_data.h"
 
+#define DEG2RAD 3.1415926 / 180.0
+
 using namespace ov_core;
 using namespace ov_type;
 using namespace ov_msckf;
@@ -374,10 +376,10 @@ void ROS2Visualizer::visualize_final() {
       T_CtoI.block(0, 0, 3, 3) = quat_2_Rot(calib->quat()).transpose();
       T_CtoI.block(0, 3, 3, 1) = -T_CtoI.block(0, 0, 3, 3) * calib->pos();
       PRINT_INFO(REDPURPLE "T_C%dtoI:\n" RESET, i);
-      PRINT_INFO(REDPURPLE "%.3f,%.3f,%.3f,%.3f,\n" RESET, T_CtoI(0, 0), T_CtoI(0, 1), T_CtoI(0, 2), T_CtoI(0, 3));
-      PRINT_INFO(REDPURPLE "%.3f,%.3f,%.3f,%.3f,\n" RESET, T_CtoI(1, 0), T_CtoI(1, 1), T_CtoI(1, 2), T_CtoI(1, 3));
-      PRINT_INFO(REDPURPLE "%.3f,%.3f,%.3f,%.3f,\n" RESET, T_CtoI(2, 0), T_CtoI(2, 1), T_CtoI(2, 2), T_CtoI(2, 3));
-      PRINT_INFO(REDPURPLE "%.3f,%.3f,%.3f,%.3f\n\n" RESET, T_CtoI(3, 0), T_CtoI(3, 1), T_CtoI(3, 2), T_CtoI(3, 3));
+      PRINT_INFO(REDPURPLE "%.6f,%.6f,%.6f,%.6f,\n" RESET, T_CtoI(0, 0), T_CtoI(0, 1), T_CtoI(0, 2), T_CtoI(0, 3));
+      PRINT_INFO(REDPURPLE "%.6f,%.6f,%.6f,%.6f,\n" RESET, T_CtoI(1, 0), T_CtoI(1, 1), T_CtoI(1, 2), T_CtoI(1, 3));
+      PRINT_INFO(REDPURPLE "%.6f,%.6f,%.6f,%.6f,\n" RESET, T_CtoI(2, 0), T_CtoI(2, 1), T_CtoI(2, 2), T_CtoI(2, 3));
+      PRINT_INFO(REDPURPLE "%.6f,%.6f,%.6f,%.6f\n\n" RESET, T_CtoI(3, 0), T_CtoI(3, 1), T_CtoI(3, 2), T_CtoI(3, 3));
     }
   }
 
@@ -440,7 +442,16 @@ void ROS2Visualizer::callback_inertial(const sensor_msgs::msg::Imu::SharedPtr ms
   // convert into correct format
   ov_core::ImuData message;
   message.timestamp = msg->header.stamp.sec + msg->header.stamp.nanosec * 1e-9;
-  message.wm << msg->angular_velocity.x, msg->angular_velocity.y, msg->angular_velocity.z;
+  message.timestamp += _app->get_params().imu_to_camera_time_shift; // 0310 data known time shift
+  if(_app->get_params().imu_angular_velocity_unit == 1)
+  {
+    message.wm << msg->angular_velocity.x * DEG2RAD, msg->angular_velocity.y * DEG2RAD, msg->angular_velocity.z * DEG2RAD;
+  }
+  else
+  {
+    message.wm << msg->angular_velocity.x, msg->angular_velocity.y, msg->angular_velocity.z;
+  }
+  
   message.am << msg->linear_acceleration.x, msg->linear_acceleration.y, msg->linear_acceleration.z;
 
   // send it to our VIO system
@@ -496,7 +507,7 @@ void ROS2Visualizer::callback_inertial(const sensor_msgs::msg::Imu::SharedPtr ms
 }
 
 void ROS2Visualizer::callback_monocular(const sensor_msgs::msg::Image::SharedPtr msg0, int cam_id0) {
-
+  
   // Check if we should drop this image
   double timestamp = msg0->header.stamp.sec + msg0->header.stamp.nanosec * 1e-9;
   double time_delta = 1.0 / _app->get_params().track_frequency;
