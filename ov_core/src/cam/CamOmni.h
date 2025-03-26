@@ -1,0 +1,175 @@
+#ifndef OV_CORE_CAM_OMNI_H
+#define OV_CORE_CAM_OMNI_H
+
+#include "CamBase.h"
+
+namespace ov_core {
+
+class CamOmni : public CamBase{
+public:
+    CamOmni(int width, int height) : CamBase(width, height) {}
+    ~CamOmni() {}
+
+    void set_xi(double xi){
+        xi_ = xi;
+    }
+
+    double get_xi(){
+        return xi_;
+    }
+
+    Eigen::Vector2f undistort_f(const Eigen::Vector2f& uv_dist) override{
+        double x, y, z;
+        lift_projective(uv_dist.x(), uv_dist.y(), &x, &y, &z);
+        double x_n = x / z, y_n = y / z;
+        double fx = camera_values(0), fy = camera_values(1), cx = camera_values(2), cy = camera_values(3);
+        double u = x_n * fx + cx;
+        double v = y_n * fy + cy;
+        return Eigen::Vector2f(u, v);
+    }
+
+    Eigen::Vector2f distort_f(const Eigen::Vector2f& uv_norm) override{
+        double u_d, v_d;
+        space2plane(uv_norm.x(), uv_norm.y(), 1.0, &u_d, &v_d);
+        return Eigen::Vector2f(u_d, v_d);
+    }
+
+    void compute_distort_jacobian(const Eigen::Vector2d &uv_norm, Eigen::MatrixXd &H_dz_dzn, Eigen::MatrixXd &H_dz_dzeta) override{
+        printf("omni came jacobian is not emplemented yet!\n");
+        exit(1);
+    }
+private:
+    /**
+     * @brief migrate from kalibr omni camera projection
+     * 
+     * @param x 
+     * @param y 
+     * @param z 
+     * @param u 
+     * @param v 
+     */
+    void space2plane(double x, double y, double z, double *u, double *v) const {
+        double mx_u, my_u, mx_d, my_d;
+        double fx = camera_values(0), fy = camera_values(1), cx = camera_values(2), cy = camera_values(3);
+        // Project points to the normalised plane
+        z = z + xi_ * sqrt(x * x + y * y + z * z);
+        mx_u = x / z;
+        my_u = y / z;
+
+        // Apply distortion
+        double dx_u, dy_u;
+        omni_distortion(mx_u, my_u, &dx_u, &dy_u); // radtan distort
+        mx_d = mx_u + dx_u;
+        my_d = my_u + dy_u;
+
+        // Apply generalised projection matrix
+        // Matlab points start at 1
+        *u = fx * mx_d + cx;
+        *v = fy * my_d + cy;
+    }
+    /**
+     * @brief migrate from kalibr omni camera projection
+     * 
+     * @param mx_u 
+     * @param my_u 
+     * @param dx_u 
+     * @param dy_u 
+     */
+    void omni_distortion(double mx_u, double my_u, double *dx_u,
+                                    double *dy_u) const {
+        double mx2_u, my2_u, mxy_u, rho2_u, rad_dist_u;
+        double k1 = camera_values(4), k2 = camera_values(5), p1 = camera_values(6), p2 = camera_values(7);
+        mx2_u = mx_u * mx_u;
+        my2_u = my_u * my_u;
+        mxy_u = mx_u * my_u;
+        rho2_u = mx2_u + my2_u;
+        rad_dist_u = k1 * rho2_u + k2 * rho2_u * rho2_u;
+        *dx_u = mx_u * rad_dist_u + 2 * p1 * mxy_u + p2 * (rho2_u + 2 * mx2_u);
+        *dy_u = my_u * rad_dist_u + 2 * p2 * mxy_u + p1 * (rho2_u + 2 * my2_u);
+    }
+
+    void omni_distortion(double mx_u, double my_u, double *dx_u,
+                                    double *dy_u, double *dxdmx, double *dydmx,
+                                    double *dxdmy, double *dydmy) const {
+        double mx2_u, my2_u, mxy_u, rho2_u, rad_dist_u;
+        double k1 = camera_values(4), k2 = camera_values(5), p1 = camera_values(6), p2 = camera_values(7);
+        mx2_u = mx_u * mx_u;
+        my2_u = my_u * my_u;
+        mxy_u = mx_u * my_u;
+        rho2_u = mx2_u + my2_u;
+        rad_dist_u = k1 * rho2_u + k2 * rho2_u * rho2_u;
+        *dx_u = mx_u * rad_dist_u + 2 * p1 * mxy_u + p2 * (rho2_u + 2 * mx2_u);
+        *dy_u = my_u * rad_dist_u + 2 * p2 * mxy_u + p1 * (rho2_u + 2 * my2_u);
+
+        *dxdmx = 1 + rad_dist_u + k1 * 2 * mx2_u + k2 * rho2_u * 4 * mx2_u
+            + 2 * p1 * my_u + 6 * p2 * mx_u;
+        *dydmx = k1 * 2 * mx_u * my_u + k2 * 4 * rho2_u * mx_u * my_u
+            + p1 * 2 * mx_u + 2 * p2 * my_u;
+        *dxdmy = *dydmx;
+        *dydmy = 1 + rad_dist_u + k1 * 2 * my2_u + k2 * rho2_u * 4 * my2_u
+            + 6 * p1 * my_u + 2 * p2 * mx_u;
+    }
+
+    void lift_projective(double u, double v, double *X,
+                                         double *Y, double *Z) const {
+        double mx_d, my_d, mx_u, my_u;
+        double rho2_d;
+
+        double fx = camera_values(0), fy = camera_values(1), cx = camera_values(2), cy = camera_values(3);
+        mx_d = (u - cx) / fx;
+        my_d = (v - cy) / fy;
+
+        omni_undistortGN(mx_d, my_d, &mx_u, &my_u);
+
+        //std::cout << "lift projective: u: " << mx_u << ", v: " << my_u << std::endl;
+
+        // Obtain a projective ray
+        // Reuse variable
+        rho2_d = mx_u * mx_u + my_u * my_u;
+        *X = mx_u;
+        *Y = my_u;
+        *Z = 1 - xi_ * (rho2_d + 1) / (xi_ + sqrt(1 + (1 - xi_ * xi_) * rho2_d));
+
+        //std::cout << "lift projective: p: " << *X << ", " << *Y << ", " << *Z << std::endl;
+    }
+    void omni_undistortGN(double u_d, double v_d, double * u,
+                                     double * v) const {
+        *u = u_d;
+        *v = v_d;
+
+        double ubar = u_d;
+        double vbar = v_d;
+        const int n = 5;
+        Eigen::Matrix2d F;
+
+        double hat_u_d;
+        double hat_v_d;
+
+        // void OmniCameraGeometry::distortion(double mx_u, double my_u, 
+        // 					  double *dx_u, double *dy_u,
+        // 					  double *dxdmx, double *dydmx,
+        // 					  double *dxdmy, double *dydmy) const
+        for (int i = 0; i < n; i++) {
+            omni_distortion(ubar, vbar, &hat_u_d, &hat_v_d, &F(0, 0), &F(1, 0), &F(0, 1),
+                    &F(1, 1));
+
+            Eigen::Vector2d e(u_d - ubar - hat_u_d, v_d - vbar - hat_v_d);
+            Eigen::Vector2d du = (F.transpose() * F).inverse() * F.transpose() * e;
+
+            ubar += du[0];
+            vbar += du[1];
+
+            if (e.dot(e) < 1e-15)
+            break;
+
+        }
+        *u = ubar;
+        *v = vbar;
+    }
+private:
+    double xi_;
+};
+
+}// namespace ov_core
+
+#endif

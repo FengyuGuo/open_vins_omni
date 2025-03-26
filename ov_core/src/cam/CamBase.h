@@ -81,6 +81,10 @@ public:
     camera_d_OPENCV = tempD;
   }
 
+  virtual void set_xi(double xi) {}
+
+  virtual double get_xi(){return 0;}
+
   /**
    * @brief Given a raw uv point, this will undistort it based on the camera matrices into normalized camera coords.
    * @param uv_dist Raw uv coordinate we wish to undistort

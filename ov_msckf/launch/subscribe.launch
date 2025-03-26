@@ -1,13 +1,13 @@
 <launch>
 
     <!-- what config we are going to run (should match folder name) -->
-    <arg name="verbosity"   default="INFO" /> <!-- ALL, DEBUG, INFO, WARNING, ERROR, SILENT -->
-    <arg name="config"      default="euroc_mav" /> <!-- euroc_mav, tum_vi, rpng_aruco -->
+    <arg name="verbosity"   default="ALL" /> <!-- ALL, DEBUG, INFO, WARNING, ERROR, SILENT -->
+    <arg name="config"      default="seeker" /> <!-- euroc_mav, tum_vi, rpng_aruco -->
     <arg name="config_path" default="$(find ov_msckf)/../config/$(arg config)/estimator_config.yaml" />
 
     <!-- mono or stereo and what ros bag to play -->
-    <arg name="max_cameras" default="2" />
-    <arg name="use_stereo"  default="true" />
+    <arg name="max_cameras" default="4" />
+    <arg name="use_stereo"  default="false" />
     <arg name="bag_start"   default="0" /> <!-- v1-2: 0, mh1: 40, mh2: 35, mh3: 17.5, mh4-5: 15 -->
     <arg name="bag_rate"    default="1" />
     <arg name="dataset"     default="V1_01_easy" /> <!-- V1_01_easy, V1_02_medium, V2_02_medium -->
@@ -42,6 +42,26 @@
         <param name="record_timing_information"   type="bool"   value="$(arg dotime)" />
         <param name="record_timing_filepath"      type="string" value="$(arg path_time)" />
 
+    </node>
+
+    <node name="repub1" pkg="image_transport" type="republish" output="screen" args="compressed in:=/fisheye/right/image_raw raw out:=/fisheye/right/image_raw">
+    <!-- <remap from="in" to="/fisheye/left/image_raw" />
+    <remap from="out" to="/fisheye/left/image_raw" /> -->
+    </node>
+
+    <node name="repub2" pkg="image_transport" type="republish" output="screen" args="compressed in:=/fisheye/left/image_raw raw out:=/fisheye/left/image_raw">
+    <!-- <remap from="in" to="/fisheye/left/image_raw" />
+    <remap from="out" to="/fisheye/left/image_raw" /> -->
+    </node>
+
+    <node name="repub3" pkg="image_transport" type="republish" output="screen" args="compressed in:=/fisheye/bright/image_raw raw out:=/fisheye/bright/image_raw">
+    <!-- <remap from="in" to="/fisheye/left/image_raw" />
+    <remap from="out" to="/fisheye/left/image_raw" /> -->
+    </node>
+
+    <node name="repub4" pkg="image_transport" type="republish" output="screen" args="compressed in:=/fisheye/bleft/image_raw raw out:=/fisheye/bleft/image_raw">
+    <!-- <remap from="in" to="/fisheye/left/image_raw" />
+    <remap from="out" to="/fisheye/left/image_raw" /> -->
     </node>
 
     <!-- play the dataset -->
