@@ -112,6 +112,7 @@ void TrackKLT::feed_monocular(const CameraData &message, size_t msg_id) {
     std::vector<cv::KeyPoint> good_left;
     std::vector<size_t> good_ids_left;
     perform_detection_monocular(imgpyr, mask, good_left, good_ids_left);
+    PRINT_DEBUG("%lu pts after first detection\n", good_ids_left.size());
     // Save the current image and pyramid
     std::lock_guard<std::mutex> lckv(mtx_last_vars);
     img_last[cam_id] = img;
@@ -128,6 +129,7 @@ void TrackKLT::feed_monocular(const CameraData &message, size_t msg_id) {
   auto pts_left_old = pts_last[cam_id];
   auto ids_left_old = ids_last[cam_id];
   perform_detection_monocular(img_pyramid_last[cam_id], img_mask_last[cam_id], pts_left_old, ids_left_old);
+  PRINT_DEBUG("%lu pts after detection\n", ids_left_old.size());
   rT3 = boost::posix_time::microsec_clock::local_time();
 
   // Our return success masks, and predicted new features
@@ -175,6 +177,7 @@ void TrackKLT::feed_monocular(const CameraData &message, size_t msg_id) {
   // Update our feature database, with theses new observations
   for (size_t i = 0; i < good_left.size(); i++) {
     cv::Point2f npt_l = camera_calib.at(cam_id)->undistort_cv(good_left.at(i).pt);
+    // PRINT_DEBUG("undistort point: %f, %f -> %f, %f\n", good_left.at(i).pt.x, good_left.at(i).pt.y, npt_l.x, npt_l.y);
     database->update_feature(good_ids_left.at(i), message.timestamp, cam_id, good_left.at(i).pt.x, good_left.at(i).pt.y, npt_l.x, npt_l.y);
   }
 

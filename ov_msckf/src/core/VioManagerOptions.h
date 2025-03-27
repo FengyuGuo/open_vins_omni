@@ -265,10 +265,11 @@ struct VioManagerOptions {
         }
         else if(cam_calib1.size() == 5) // omni camera. xi, fx, fy, cx, cy
         {
-          PRINT_DEBUG("size of camera calib1 is 5!\n");
+          PRINT_DEBUG("###############size of camera calib1 is 5!\n");
           cam_calib << cam_calib1.at(1), cam_calib1.at(2), cam_calib1.at(3), cam_calib1.at(4), cam_calib2.at(0), cam_calib2.at(1),
             cam_calib2.at(2), cam_calib2.at(3);
           xi = cam_calib1.at(0);
+          PRINT_DEBUG("#################xi: %f\n", xi);
           // xi /= (downsample_cameras) ? 2.0 : 1.0; // xi is applied after normalization
           cam_calib(0) /= (downsample_cameras) ? 2.0 : 1.0;
           cam_calib(1) /= (downsample_cameras) ? 2.0 : 1.0;
@@ -297,9 +298,11 @@ struct VioManagerOptions {
           camera_intrinsics.insert({i, std::make_shared<ov_core::CamEqui>(matrix_wh.at(0), matrix_wh.at(1))});
           camera_intrinsics.at(i)->set_value(cam_calib);
         } else if(dist_model == "omni"){
+          PRINT_DEBUG("###############OMNI camera!\n");
           camera_intrinsics.insert({i, std::make_shared<ov_core::CamOmni>(matrix_wh.at(0), matrix_wh.at(1))});
           camera_intrinsics.at(i)->set_value(cam_calib);
           camera_intrinsics.at(i)->set_xi(xi);
+          PRINT_DEBUG("set xi: %f\n", camera_intrinsics.at(i)->get_xi());
         } else{
           camera_intrinsics.insert({i, std::make_shared<ov_core::CamRadtan>(matrix_wh.at(0), matrix_wh.at(1))});
           camera_intrinsics.at(i)->set_value(cam_calib);

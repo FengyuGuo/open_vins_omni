@@ -81,9 +81,9 @@ public:
     camera_d_OPENCV = tempD;
   }
 
-  virtual void set_xi(double xi) {}
+  virtual void set_xi(double xi) {xi_ = xi;}
 
-  virtual double get_xi(){return 0;}
+  virtual double get_xi(){return xi_;}
 
   /**
    * @brief Given a raw uv point, this will undistort it based on the camera matrices into normalized camera coords.
@@ -194,6 +194,8 @@ protected:
 
   /// Height of the camera (raw pixels)
   int _height;
+
+  double xi_;
 };
 
 } // namespace ov_core

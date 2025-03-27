@@ -11,9 +11,9 @@ cam0:
   intrinsics: [ 3.2002462594632917, 1661.0508677925284, 1661.1166401802136, 524.1186764831461,
     630.1494276574698]
   resolution: [ 1088, 1280]
-  camera_model: omni
-  distortion_model: radtan
+  distortion_model: omni
   rostopic: /fisheye/left/image_raw/
+
 cam1:
   T_imu_cam: 
     - [ 0.7093898564024407, 0.007482150850715555, 0.7047765951363397, 0.022153291004555868]
@@ -25,9 +25,9 @@ cam1:
   intrinsics: [ 3.2028378956077965, 1665.6437794242734, 1666.3514138875382, 533.9942271479417,
     633.852170385798]
   resolution: [1088, 1280]
-  camera_model: omni
-  distortion_model: radtan
+  distortion_model: omni
   rostopic: /fisheye/right/image_raw/
+
 cam2:
   T_imu_cam: 
     - [ -0.7065011537256349, -0.013862735125668659, 0.7075761049944959, 0.02233391901454759]
@@ -39,9 +39,9 @@ cam2:
   intrinsics: [ 3.178424138895726, 1644.2718112123594, 1644.5035096625961, 556.1338717420991,
     615.5159572786051]
   resolution: [1088, 1280]
-  camera_model: omni
-  distortion_model: radtan
+  distortion_model: omni
   rostopic: /fisheye/bright/image_raw/
+
 cam3: 
   T_imu_cam: 
     - [ -0.7029560152854227, 0.0006090424371133768, -0.7112330628151017, -0.02387278642235903]
@@ -53,8 +53,7 @@ cam3:
   intrinsics: [3.1845362371596004, 1641.6891707779432, 1642.1307819719855, 531.0851532091158,
     629.7327211210284]
   resolution: [1088, 1280]
-  camera_model: omni
-  distortion_model: radtan
+  distortion_model: omni
   rostopic: /fisheye/bleft/image_raw/
 
 # cam0:

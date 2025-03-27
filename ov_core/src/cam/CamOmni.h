@@ -10,21 +10,15 @@ public:
     CamOmni(int width, int height) : CamBase(width, height) {}
     ~CamOmni() {}
 
-    void set_xi(double xi){
-        xi_ = xi;
-    }
-
-    double get_xi(){
-        return xi_;
-    }
-
     Eigen::Vector2f undistort_f(const Eigen::Vector2f& uv_dist) override{
         double x, y, z;
-        lift_projective(uv_dist.x(), uv_dist.y(), &x, &y, &z);
+        // PRINT_DEBUG("cam intrinsic: %f, %f, %f, %f\n", camera_values(0), camera_values(1), camera_values(2), camera_values(3));
+        omni_lift_projective(uv_dist.x(), uv_dist.y(), &x, &y, &z);
         double x_n = x / z, y_n = y / z;
         double fx = camera_values(0), fy = camera_values(1), cx = camera_values(2), cy = camera_values(3);
         double u = x_n * fx + cx;
         double v = y_n * fy + cy;
+        PRINT_DEBUG("omni undistortion: %f, %f -> %f, %f\n", uv_dist.x(), uv_dist.y(), u, v);
         return Eigen::Vector2f(u, v);
     }
 
@@ -110,7 +104,7 @@ private:
             + 6 * p1 * my_u + 2 * p2 * mx_u;
     }
 
-    void lift_projective(double u, double v, double *X,
+    void omni_lift_projective(double u, double v, double *X,
                                          double *Y, double *Z) const {
         double mx_d, my_d, mx_u, my_u;
         double rho2_d;

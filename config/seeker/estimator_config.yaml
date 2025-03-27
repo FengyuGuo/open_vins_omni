@@ -5,7 +5,7 @@ verbosity: "ALL" # ALL, DEBUG, INFO, WARNING, ERROR, SILENT
 use_fej: true # if first-estimate Jacobians should be used (enable for good consistency)
 integration: "rk4" # discrete, rk4, analytical (if rk4 or analytical used then analytical covariance propagation is used)
 use_stereo: false # if we have more than 1 camera, if we should try to track stereo constraints between pairs
-max_cameras: 4 # how many cameras we have 1 = mono, 2 = stereo, >2 = binocular (all mono tracking)
+max_cameras: 2 # how many cameras we have 1 = mono, 2 = stereo, >2 = binocular (all mono tracking)
 
 calib_cam_extrinsics: true # if the transform between camera and IMU should be optimized R_ItoC, p_CinI
 calib_cam_intrinsics: false # if camera intrinsics should be optimized (focal, center, distortion)
@@ -79,12 +79,12 @@ filepath_gt: "/tmp/ov_groundtruth.txt"
 # we have a KLT and descriptor based (KLT is better implemented...)
 use_klt: true # if true we will use KLT, otherwise use a ORB descriptor + robust matching
 num_pts: 200 # number of points (per camera) we will extract and try to track
-fast_threshold: 20 # threshold for fast extraction (warning: lower threshs can be expensive)
+fast_threshold: 3 # threshold for fast extraction (warning: lower threshs can be expensive)
 grid_x: 10 # extraction sub-grid count for horizontal direction (uniform tracking)
 grid_y: 10 # extraction sub-grid count for vertical direction (uniform tracking)
 min_px_dist: 10 # distance between features (features near each other provide less information)
 knn_ratio: 0.70 # descriptor knn threshold for the top two descriptor matches
-track_frequency: 11.0 # frequency we will perform feature tracking at (in frames per second / hertz)
+track_frequency: 21.0 # frequency we will perform feature tracking at (in frames per second / hertz)
 downsample_cameras: false # will downsample image in half if true
 num_opencv_threads: 4 # -1: auto, 0-1: serial, >1: number of threads
 histogram_method: "NONE" # NONE, HISTOGRAM, CLAHE
