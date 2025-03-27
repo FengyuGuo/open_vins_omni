@@ -12,6 +12,7 @@ public:
 
     Eigen::Vector2f undistort_f(const Eigen::Vector2f& uv_dist) override{
         double x, y, z;
+        // TODO: bug inside!!
         // PRINT_DEBUG("cam intrinsic: %f, %f, %f, %f\n", camera_values(0), camera_values(1), camera_values(2), camera_values(3));
         omni_lift_projective(uv_dist.x(), uv_dist.y(), &x, &y, &z);
         double x_n = x / z, y_n = y / z;

@@ -26,6 +26,10 @@
     <arg name="dolivetraj"  default="false" />
     <arg name="path_gt"     default="$(find ov_data)/$(arg config)/$(arg dataset).txt" />
 
+    <arg name="do_seeker_repub"  default="true" />
+    <arg name="do_viz"  default="true" />
+    
+
     <!-- MASTER NODE! -->
 <!--    <node name="ov_msckf" pkg="ov_msckf" type="run_subscribe_msckf" output="screen" clear_params="true" required="true" launch-prefix="gdb -ex run &#45;&#45;args">-->
     <node name="ov_msckf" pkg="ov_msckf" type="run_subscribe_msckf" output="screen" clear_params="true" required="true">
@@ -44,25 +48,33 @@
 
     </node>
 
-    <node name="repub1" pkg="image_transport" type="republish" output="screen" args="compressed in:=/fisheye/right/image_raw raw out:=/fisheye/right/image_raw">
-    <!-- <remap from="in" to="/fisheye/left/image_raw" />
-    <remap from="out" to="/fisheye/left/image_raw" /> -->
-    </node>
+    <group if="$(arg do_viz)">
+        <node pkg="rviz" type="rviz" name="rviz" args="-d $(find ov_msckf)/launch/display.rviz"/>
+    </group>
 
-    <node name="repub2" pkg="image_transport" type="republish" output="screen" args="compressed in:=/fisheye/left/image_raw raw out:=/fisheye/left/image_raw">
-    <!-- <remap from="in" to="/fisheye/left/image_raw" />
-    <remap from="out" to="/fisheye/left/image_raw" /> -->
-    </node>
+    <group if="$(arg do_seeker_repub)">
 
-    <node name="repub3" pkg="image_transport" type="republish" output="screen" args="compressed in:=/fisheye/bright/image_raw raw out:=/fisheye/bright/image_raw">
-    <!-- <remap from="in" to="/fisheye/left/image_raw" />
-    <remap from="out" to="/fisheye/left/image_raw" /> -->
-    </node>
+        <node name="repub1" pkg="image_transport" type="republish" output="screen" args="compressed in:=/fisheye/right/image_raw raw out:=/fisheye/right/image_raw">
+        <!-- <remap from="in" to="/fisheye/left/image_raw" />
+        <remap from="out" to="/fisheye/left/image_raw" /> -->
+        </node>
 
-    <node name="repub4" pkg="image_transport" type="republish" output="screen" args="compressed in:=/fisheye/bleft/image_raw raw out:=/fisheye/bleft/image_raw">
-    <!-- <remap from="in" to="/fisheye/left/image_raw" />
-    <remap from="out" to="/fisheye/left/image_raw" /> -->
-    </node>
+        <node name="repub2" pkg="image_transport" type="republish" output="screen" args="compressed in:=/fisheye/left/image_raw raw out:=/fisheye/left/image_raw">
+        <!-- <remap from="in" to="/fisheye/left/image_raw" />
+        <remap from="out" to="/fisheye/left/image_raw" /> -->
+        </node>
+
+        <node name="repub3" pkg="image_transport" type="republish" output="screen" args="compressed in:=/fisheye/bright/image_raw raw out:=/fisheye/bright/image_raw">
+        <!-- <remap from="in" to="/fisheye/left/image_raw" />
+        <remap from="out" to="/fisheye/left/image_raw" /> -->
+        </node>
+
+        <node name="repub4" pkg="image_transport" type="republish" output="screen" args="compressed in:=/fisheye/bleft/image_raw raw out:=/fisheye/bleft/image_raw">
+        <!-- <remap from="in" to="/fisheye/left/image_raw" />
+        <remap from="out" to="/fisheye/left/image_raw" /> -->
+        </node>
+
+    </group>
 
     <!-- play the dataset -->
     <group if="$(arg dobag)">
