@@ -13,13 +13,15 @@ public:
     Eigen::Vector2f undistort_f(const Eigen::Vector2f& uv_dist) override{
         double x, y, z;
         // TODO: bug inside!!
+        // printf("start omni undistortion\n");
         // PRINT_DEBUG("cam intrinsic: %f, %f, %f, %f\n", camera_values(0), camera_values(1), camera_values(2), camera_values(3));
         omni_lift_projective(uv_dist.x(), uv_dist.y(), &x, &y, &z);
+        // printf("lift %f, %f to %f, %f, %f\n", uv_dist.x(), uv_dist.y(), x, y, z);
         double x_n = x / z, y_n = y / z;
         double fx = camera_values(0), fy = camera_values(1), cx = camera_values(2), cy = camera_values(3);
         double u = x_n * fx + cx;
         double v = y_n * fy + cy;
-        PRINT_DEBUG("omni undistortion: %f, %f -> %f, %f\n", uv_dist.x(), uv_dist.y(), u, v);
+        // printf("omni undistortion: %f, %f -> %f, %f\n", uv_dist.x(), uv_dist.y(), u, v);
         return Eigen::Vector2f(u, v);
     }
 
@@ -113,11 +115,11 @@ private:
         double fx = camera_values(0), fy = camera_values(1), cx = camera_values(2), cy = camera_values(3);
         mx_d = (u - cx) / fx;
         my_d = (v - cy) / fy;
-
+        
         omni_undistortGN(mx_d, my_d, &mx_u, &my_u);
-
+        // printf("before undistort %f, %f, after %f, %f\n", mx_d, my_d, mx_u, my_u);
         //std::cout << "lift projective: u: " << mx_u << ", v: " << my_u << std::endl;
-
+        // printf("xi is %f\n", xi_);
         // Obtain a projective ray
         // Reuse variable
         rho2_d = mx_u * mx_u + my_u * my_u;
@@ -161,8 +163,6 @@ private:
         *u = ubar;
         *v = vbar;
     }
-private:
-    double xi_;
 };
 
 }// namespace ov_core

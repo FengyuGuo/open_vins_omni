@@ -102,5 +102,6 @@ install(TARGETS test_profile
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-
+add_executable(test_omni src/test_omni.cpp)
+target_link_libraries(test_omni ov_core_lib ${thirdparty_libraries})
 
