@@ -25,9 +25,11 @@
 #include <unistd.h>
 #include <vector>
 #include <fstream>
+#include <chrono>
 
 #include "cam/CamOmni.h"
 #include "utils/print.h"
+#include "utils/tic_toc.h"
 
 using namespace ov_core;
 
@@ -59,10 +61,14 @@ int main(int argc, char **argv) {
   while(std::cin >> u >> v)
   {
     uv << u, v;
+    TicToc tic;
     uv_undistort = cam.undistort_d(uv);
+    std::cout << "undistortion execution time: " << tic.toc() << " ms" << std::endl;
     double u_n = (u - cx) / fx, v_n = (v - cy) / fy;
     uv_n << u_n, v_n;
+    tic.tic();
     uv_distort = cam.distort_d(uv_n);
+    std::cout << "distortion execution time: " << tic.toc() << " ms" << std::endl;
     std::cout << "input point: " << uv.transpose() << std::endl;
     std::cout << "normalized point: " << uv_n.transpose() << std::endl;
     std::cout << "after distortion: " << uv_distort.transpose() << std::endl;
