@@ -118,7 +118,7 @@ void TrackBase::display_active(cv::Mat &img_out, int r1, int g1, int b1, int r2,
 
 void TrackBase::display_history(cv::Mat &img_out, int r1, int g1, int b1, int r2, int g2, int b2, std::vector<size_t> highlighted,
                                 std::string overlay) {
-
+  
   // Cache the images to prevent other threads from editing while we viz (which can be slow)
   std::map<size_t, cv::Mat> img_last_cache, img_mask_last_cache;
   std::unordered_map<size_t, std::vector<cv::KeyPoint>> pts_last_cache;
@@ -220,7 +220,10 @@ void TrackBase::display_history(cv::Mat &img_out, int r1, int g1, int b1, int r2
     // Overlay the mask
     cv::Mat mask = cv::Mat::zeros(img_mask_last_cache[pair.first].rows, img_mask_last_cache[pair.first].cols, CV_8UC3);
     mask.setTo(cv::Scalar(0, 0, 255), img_mask_last_cache[pair.first]);
+    PRINT_DEBUG("before addWeighted\n");
+    std::cout << mask.size() << ", " << img_temp.size() << std::endl;
     cv::addWeighted(mask, 0.1, img_temp, 1.0, 0.0, img_temp);
+    PRINT_DEBUG("after addWeighted\n");
     // Replace the output image
     img_temp.copyTo(img_out(cv::Rect(max_width * index_cam, 0, img_last_cache[pair.first].cols, img_last_cache[pair.first].rows)));
     index_cam++;

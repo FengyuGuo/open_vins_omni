@@ -94,7 +94,8 @@ void TrackKLT::feed_new_camera(const CameraData &message) {
 }
 
 void TrackKLT::feed_monocular(const CameraData &message, size_t msg_id) {
-
+  PRINT_DEBUG("feed monocular\n");
+  
   // Lock this data feed for this camera
   size_t cam_id = message.sensor_ids.at(msg_id);
   std::lock_guard<std::mutex> lck(mtx_feeds.at(cam_id));
@@ -103,6 +104,7 @@ void TrackKLT::feed_monocular(const CameraData &message, size_t msg_id) {
   cv::Mat img = img_curr.at(cam_id);
   std::vector<cv::Mat> imgpyr = img_pyramid_curr.at(cam_id);
   cv::Mat mask = message.masks.at(msg_id);
+  std::cout << img.size() << ", " << mask.size() << std::endl;
   rT2 = boost::posix_time::microsec_clock::local_time();
 
   // If we didn't have any successful tracks last time, just extract this time
@@ -112,7 +114,7 @@ void TrackKLT::feed_monocular(const CameraData &message, size_t msg_id) {
     std::vector<cv::KeyPoint> good_left;
     std::vector<size_t> good_ids_left;
     perform_detection_monocular(imgpyr, mask, good_left, good_ids_left);
-    PRINT_DEBUG("%lu pts after first detection\n", good_ids_left.size());
+    // PRINT_DEBUG("%lu pts after first detection\n", good_ids_left.size());
     // Save the current image and pyramid
     std::lock_guard<std::mutex> lckv(mtx_last_vars);
     img_last[cam_id] = img;
@@ -129,7 +131,7 @@ void TrackKLT::feed_monocular(const CameraData &message, size_t msg_id) {
   auto pts_left_old = pts_last[cam_id];
   auto ids_left_old = ids_last[cam_id];
   perform_detection_monocular(img_pyramid_last[cam_id], img_mask_last[cam_id], pts_left_old, ids_left_old);
-  PRINT_DEBUG("%lu pts after detection\n", ids_left_old.size());
+  // PRINT_DEBUG("%lu pts after detection\n", ids_left_old.size());
   rT3 = boost::posix_time::microsec_clock::local_time();
 
   // Our return success masks, and predicted new features
@@ -194,7 +196,7 @@ void TrackKLT::feed_monocular(const CameraData &message, size_t msg_id) {
 
   // Timing information
   PRINT_ALL("[TIME-KLT]: %.4f seconds for pyramid\n", (rT2 - rT1).total_microseconds() * 1e-6);
-  PRINT_ALL("[TIME-KLT]: %.4f seconds for detection (%zu detected)\n", (rT3 - rT2).total_microseconds() * 1e-6,
+  PRINT_ALL("[TIME-KLT]: %.4f seconds for detection (%d detected)\n", (rT3 - rT2).total_microseconds() * 1e-6,
             (int)pts_last[cam_id].size() - pts_before_detect);
   PRINT_ALL("[TIME-KLT]: %.4f seconds for temporal klt\n", (rT4 - rT3).total_microseconds() * 1e-6);
   PRINT_ALL("[TIME-KLT]: %.4f seconds for feature DB update (%d features)\n", (rT5 - rT4).total_microseconds() * 1e-6,

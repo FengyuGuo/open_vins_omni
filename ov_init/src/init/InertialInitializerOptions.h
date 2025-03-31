@@ -30,6 +30,7 @@
 
 #include "cam/CamEqui.h"
 #include "cam/CamRadtan.h"
+#include "cam/CamOmni.h"
 #include "feat/FeatureInitializerOptions.h"
 #include "track/TrackBase.h"
 #include "utils/colors.h"
@@ -281,13 +282,22 @@ struct InertialInitializerOptions {
         parser->parse_external("relative_config_imucam", "cam" + std::to_string(i), "intrinsics", cam_calib1);
         parser->parse_external("relative_config_imucam", "cam" + std::to_string(i), "distortion_coeffs", cam_calib2);
         Eigen::VectorXd cam_calib = Eigen::VectorXd::Zero(8);
-        cam_calib << cam_calib1.at(0), cam_calib1.at(1), cam_calib1.at(2), cam_calib1.at(3), cam_calib2.at(0), cam_calib2.at(1),
+        double xi = 0;
+        if(cam_calib1.size() == 4)
+        {
+          cam_calib << cam_calib1.at(0), cam_calib1.at(1), cam_calib1.at(2), cam_calib1.at(3), cam_calib2.at(0), cam_calib2.at(1),
             cam_calib2.at(2), cam_calib2.at(3);
+        }
+        else
+        {
+          cam_calib << cam_calib1.at(1), cam_calib1.at(2), cam_calib1.at(3), cam_calib1.at(4), cam_calib2.at(0), cam_calib2.at(1),
+            cam_calib2.at(2), cam_calib2.at(3);
+          xi = cam_calib1.at(0);
+        }
         cam_calib(0) /= (downsample_cameras) ? 2.0 : 1.0;
         cam_calib(1) /= (downsample_cameras) ? 2.0 : 1.0;
         cam_calib(2) /= (downsample_cameras) ? 2.0 : 1.0;
         cam_calib(3) /= (downsample_cameras) ? 2.0 : 1.0;
-
         // FOV / resolution
         std::vector<int> matrix_wh = {1, 1};
         parser->parse_external("relative_config_imucam", "cam" + std::to_string(i), "resolution", matrix_wh);
@@ -307,7 +317,12 @@ struct InertialInitializerOptions {
         if (dist_model == "equidistant") {
           camera_intrinsics.insert({i, std::make_shared<ov_core::CamEqui>(matrix_wh.at(0), matrix_wh.at(1))});
           camera_intrinsics.at(i)->set_value(cam_calib);
-        } else {
+        } else if (dist_model == "omni"){
+          camera_intrinsics.insert({i, std::make_shared<ov_core::CamOmni>(matrix_wh.at(0), matrix_wh.at(1))});
+          camera_intrinsics.at(i)->set_value(cam_calib);
+          camera_intrinsics.at(i)->set_xi(xi);
+        }
+        else {
           camera_intrinsics.insert({i, std::make_shared<ov_core::CamRadtan>(matrix_wh.at(0), matrix_wh.at(1))});
           camera_intrinsics.at(i)->set_value(cam_calib);
         }

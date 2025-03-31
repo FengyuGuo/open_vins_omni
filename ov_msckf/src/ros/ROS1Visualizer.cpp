@@ -519,11 +519,13 @@ void ROS1Visualizer::callback_monocular(const sensor_msgs::ImageConstPtr &msg0, 
   message.timestamp = cv_ptr->header.stamp.toSec();
   message.sensor_ids.push_back(cam_id0);
   message.images.push_back(cv_ptr->image.clone());
-
+  PRINT_DEBUG("callback monocular\n");
+  std::cout << cv_ptr->image.size() << std::endl;
   // Load the mask if we are using it, else it is empty
   // TODO: in the future we should get this from external pixel segmentation
   if (_app->get_params().use_mask) {
     message.masks.push_back(_app->get_params().masks.at(cam_id0));
+    std::cout << _app->get_params().masks.at(cam_id0).size() << std::endl;
   } else {
     message.masks.push_back(cv::Mat::zeros(cv_ptr->image.rows, cv_ptr->image.cols, CV_8UC1));
   }

@@ -258,10 +258,6 @@ struct VioManagerOptions {
         {
           cam_calib << cam_calib1.at(0), cam_calib1.at(1), cam_calib1.at(2), cam_calib1.at(3), cam_calib2.at(0), cam_calib2.at(1),
             cam_calib2.at(2), cam_calib2.at(3);
-          cam_calib(0) /= (downsample_cameras) ? 2.0 : 1.0;
-          cam_calib(1) /= (downsample_cameras) ? 2.0 : 1.0;
-          cam_calib(2) /= (downsample_cameras) ? 2.0 : 1.0;
-          cam_calib(3) /= (downsample_cameras) ? 2.0 : 1.0;
         }
         else if(cam_calib1.size() == 5) // omni camera. xi, fx, fy, cx, cy
         {
@@ -269,14 +265,12 @@ struct VioManagerOptions {
           cam_calib << cam_calib1.at(1), cam_calib1.at(2), cam_calib1.at(3), cam_calib1.at(4), cam_calib2.at(0), cam_calib2.at(1),
             cam_calib2.at(2), cam_calib2.at(3);
           xi = cam_calib1.at(0);
-          PRINT_DEBUG("#################xi: %f\n", xi);
-          // xi /= (downsample_cameras) ? 2.0 : 1.0; // xi is applied after normalization
-          cam_calib(0) /= (downsample_cameras) ? 2.0 : 1.0;
-          cam_calib(1) /= (downsample_cameras) ? 2.0 : 1.0;
-          cam_calib(2) /= (downsample_cameras) ? 2.0 : 1.0;
-          cam_calib(3) /= (downsample_cameras) ? 2.0 : 1.0;
+          PRINT_DEBUG("################xi: %f\n", xi);
         }
-        
+        cam_calib(0) /= (downsample_cameras) ? 2.0 : 1.0;
+        cam_calib(1) /= (downsample_cameras) ? 2.0 : 1.0;
+        cam_calib(2) /= (downsample_cameras) ? 2.0 : 1.0;
+        cam_calib(3) /= (downsample_cameras) ? 2.0 : 1.0;
 
         // FOV / resolution
         std::vector<int> matrix_wh = {1, 1};

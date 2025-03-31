@@ -30,6 +30,7 @@
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
 #include <sensor_msgs/Image.h>
+#include <sensor_msgs/CompressedImage.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -77,7 +78,7 @@ int main(int argc, char **argv) {
   ros::init(argc, argv, "test_tracking");
   auto nh = std::make_shared<ros::NodeHandle>("~");
   nh->param<std::string>("config_path", config_path, config_path);
-
+  std::cout << config_path << std::endl;
   // Load parameters
   auto parser = std::make_shared<ov_core::YamlParser>(config_path, false);
   parser->set_node_handler(nh);
@@ -96,7 +97,7 @@ int main(int argc, char **argv) {
 
   // Location of the ROS bag we want to read in
   std::string path_to_bag;
-  nh->param<std::string>("path_bag", path_to_bag, "/home/patrick/datasets/euroc_mav/V1_01_easy.bag");
+  nh->param<std::string>("path_bag", path_to_bag, "/home/guo/dataset/seeker/office.bag");
   // nh->param<std::string>("path_bag", path_to_bag, "/home/patrick/datasets/rpng_aruco/aruco_room_01.bag");
   PRINT_INFO("ros bag path is: %s\n", path_to_bag.c_str());
 
@@ -127,13 +128,13 @@ int main(int argc, char **argv) {
   parser->parse_config("max_cameras", max_cameras, false);
   parser->parse_config("num_pts", num_pts, false);
   parser->parse_config("num_aruco", num_aruco, false);
-  parser->parse_config("clone_states", clone_states, false);
+  parser->parse_config("max_clones", clone_states, false);
   parser->parse_config("fast_threshold", fast_threshold, false);
   parser->parse_config("grid_x", grid_x, false);
   parser->parse_config("grid_y", grid_y, false);
   parser->parse_config("min_px_dist", min_px_dist, false);
   parser->parse_config("knn_ratio", knn_ratio, false);
-  parser->parse_config("do_downsizing", do_downsizing, false);
+  parser->parse_config("downsample_cameras", do_downsizing, false);
   parser->parse_config("use_stereo", use_stereo, false);
 
   // Histogram method
@@ -229,12 +230,12 @@ int main(int argc, char **argv) {
       break;
 
     // Handle LEFT camera
-    sensor_msgs::Image::ConstPtr s0 = m.instantiate<sensor_msgs::Image>();
+    sensor_msgs::CompressedImage::ConstPtr s0 = m.instantiate<sensor_msgs::CompressedImage>();
     if (s0 != nullptr && m.getTopic() == topic_camera0) {
       // Get the image
       cv_bridge::CvImageConstPtr cv_ptr;
       try {
-        cv_ptr = cv_bridge::toCvShare(s0, sensor_msgs::image_encodings::MONO8);
+        cv_ptr = cv_bridge::toCvCopy(s0, sensor_msgs::image_encodings::MONO8);
       } catch (cv_bridge::Exception &e) {
         PRINT_ERROR(RED "cv_bridge exception: %s\n" RESET, e.what());
         continue;
@@ -242,17 +243,21 @@ int main(int argc, char **argv) {
       // Save to our temp variable
       has_left = true;
       cv::equalizeHist(cv_ptr->image, img0);
+      if(do_downsizing)
+      {
+        cv::resize(img0, img0, cv::Size(img0.cols / 2, img0.rows / 2));
+      }
       // img0 = cv_ptr->image.clone();
       time0 = cv_ptr->header.stamp.toSec();
     }
 
     //  Handle RIGHT camera
-    sensor_msgs::Image::ConstPtr s1 = m.instantiate<sensor_msgs::Image>();
+    sensor_msgs::CompressedImage::ConstPtr s1 = m.instantiate<sensor_msgs::CompressedImage>();
     if (s1 != nullptr && m.getTopic() == topic_camera1) {
       // Get the image
       cv_bridge::CvImageConstPtr cv_ptr;
       try {
-        cv_ptr = cv_bridge::toCvShare(s1, sensor_msgs::image_encodings::MONO8);
+        cv_ptr = cv_bridge::toCvCopy(s1, sensor_msgs::image_encodings::MONO8);
       } catch (cv_bridge::Exception &e) {
         PRINT_ERROR(RED "cv_bridge exception: %s\n" RESET, e.what());
         continue;
@@ -260,6 +265,10 @@ int main(int argc, char **argv) {
       // Save to our temp variable
       has_right = true;
       cv::equalizeHist(cv_ptr->image, img1);
+      if(do_downsizing)
+      {
+        cv::resize(img1, img1, cv::Size(img1.cols / 2, img1.rows / 2));
+      }
       // img1 = cv_ptr->image.clone();
       time1 = cv_ptr->header.stamp.toSec();
     }
@@ -322,7 +331,11 @@ void handle_stereo(double time0, double time1, cv::Mat img0, cv::Mat img1) {
   // Show our image!
   cv::imshow("Active Tracks", img_active);
   cv::imshow("Track History", img_history);
-  cv::waitKey(1);
+  int key = cv::waitKey(500);
+  if(key == 'q')
+  {
+    exit(0);
+  }
 
   // Get lost tracks
   std::shared_ptr<FeatureDatabase> database = extractor->get_feature_database();

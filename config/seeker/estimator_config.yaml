@@ -79,13 +79,13 @@ filepath_gt: "/tmp/ov_groundtruth.txt"
 # we have a KLT and descriptor based (KLT is better implemented...)
 use_klt: true # if true we will use KLT, otherwise use a ORB descriptor + robust matching
 num_pts: 200 # number of points (per camera) we will extract and try to track
-fast_threshold: 3 # threshold for fast extraction (warning: lower threshs can be expensive)
+fast_threshold: 10 # threshold for fast extraction (warning: lower threshs can be expensive)
 grid_x: 10 # extraction sub-grid count for horizontal direction (uniform tracking)
 grid_y: 10 # extraction sub-grid count for vertical direction (uniform tracking)
 min_px_dist: 10 # distance between features (features near each other provide less information)
 knn_ratio: 0.70 # descriptor knn threshold for the top two descriptor matches
 track_frequency: 21.0 # frequency we will perform feature tracking at (in frames per second / hertz)
-downsample_cameras: false # will downsample image in half if true
+downsample_cameras: true # will downsample image in half if true
 num_opencv_threads: 4 # -1: auto, 0-1: serial, >1: number of threads
 histogram_method: "NONE" # NONE, HISTOGRAM, CLAHE
 
@@ -108,8 +108,8 @@ up_aruco_chi2_multipler: 1
 
 # masks for our images
 use_mask: true
-mask0: mask0.png
-mask1: mask1.png
+mask0: mask0_half.png
+mask1: mask0_half.png
 mask2: mask2.png
 mask3: mask3.png
 
