@@ -104,7 +104,7 @@ void TrackKLT::feed_monocular(const CameraData &message, size_t msg_id) {
   cv::Mat img = img_curr.at(cam_id);
   std::vector<cv::Mat> imgpyr = img_pyramid_curr.at(cam_id);
   cv::Mat mask = message.masks.at(msg_id);
-  std::cout << img.size() << ", " << mask.size() << std::endl;
+  // std::cout << img.size() << ", " << mask.size() << std::endl;
   rT2 = boost::posix_time::microsec_clock::local_time();
 
   // If we didn't have any successful tracks last time, just extract this time

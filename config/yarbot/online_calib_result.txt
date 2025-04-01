@@ -1,0 +1,11 @@
+[run_subscribe_msckf-1] ROS2Visualizer.cpp:378 T_C0toI:
+[run_subscribe_msckf-1] ROS2Visualizer.cpp:379 0.023257,0.197982,-0.979930,-0.275029,
+[run_subscribe_msckf-1] ROS2Visualizer.cpp:380 0.999712,-0.010402,0.021625,0.093543,
+[run_subscribe_msckf-1] ROS2Visualizer.cpp:381 -0.005912,-0.980150,-0.198167,0.198339,
+[run_subscribe_msckf-1] ROS2Visualizer.cpp:382 0.000000,0.000000,0.000000,1.000000
+[run_subscribe_msckf-1] 
+[run_subscribe_msckf-1] ROS2Visualizer.cpp:378 T_C1toI:
+[run_subscribe_msckf-1] ROS2Visualizer.cpp:379 -0.014771,0.204469,-0.978761,-0.271674,
+[run_subscribe_msckf-1] ROS2Visualizer.cpp:380 0.999791,-0.010845,-0.017354,0.246600,
+[run_subscribe_msckf-1] ROS2Visualizer.cpp:381 -0.014163,-0.978813,-0.204266,0.196231,
+[run_subscribe_msckf-1] ROS2Visualizer.cpp:382 0.000000,0.000000,0.000000,1.000000
