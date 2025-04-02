@@ -55,6 +55,8 @@
 #include <boost/filesystem.hpp>
 #include <cv_bridge/cv_bridge.hpp> // ros jazzy support
 
+#include "timestamp_cor.h"
+
 namespace ov_core {
 class YamlParser;
 struct CameraData;
@@ -158,8 +160,8 @@ protected:
   // Our subscribers and camera synchronizers
   rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr sub_imu;
   std::vector<rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr> subs_cam;
-  // typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::msg::Image, sensor_msgs::msg::Image> sync_pol;
-  typedef message_filters::sync_policies::ExactTime<sensor_msgs::msg::Image, sensor_msgs::msg::Image> sync_pol;
+  typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::msg::Image, sensor_msgs::msg::Image> sync_pol;
+  // typedef message_filters::sync_policies::ExactTime<sensor_msgs::msg::Image, sensor_msgs::msg::Image> sync_pol;
   std::vector<std::shared_ptr<message_filters::Synchronizer<sync_pol>>> sync_cam;
   std::vector<std::shared_ptr<message_filters::Subscriber<sensor_msgs::msg::Image>>> sync_subs_cam;
 
@@ -207,6 +209,11 @@ protected:
   // Files and if we should save total state
   bool save_total_state = false;
   std::ofstream of_state_est, of_state_std, of_state_gt;
+
+  // Correct timestamp error introduced by hardware communication
+  bool correct_timestamp_;
+  common_tools::TimestampCorrection timestamp_cor_;
+  std::string imu_topic_, image_topic_;
 };
 
 } // namespace ov_msckf

@@ -53,8 +53,13 @@ launch_args = [
     ),
     DeclareLaunchArgument(
         name="imu_angular_velocity_unit",
-        default_value="deg/s",
+        default_value="deg/s", # YARBO imu angular velocity unit
         description="unit of imu angular velocity"
+    ),
+    DeclareLaunchArgument(
+        name="correct_timestamp",
+        default_value="true", 
+        description="correct the timestmap of sensors with sensor frequency"
     )
 ]
 
@@ -100,7 +105,8 @@ def launch_setup(context):
             {"save_total_state": LaunchConfiguration("save_total_state")},
             {"config_path": config_path},
             {"imu_time_shift": LaunchConfiguration("imu_time_shift")},
-            {"imu_angular_velocity_unit": LaunchConfiguration("imu_angular_velocity_unit")}
+            {"imu_angular_velocity_unit": LaunchConfiguration("imu_angular_velocity_unit")},
+            {"correct_timestamp": LaunchConfiguration("correct_timestamp")}
         ],
     )
 

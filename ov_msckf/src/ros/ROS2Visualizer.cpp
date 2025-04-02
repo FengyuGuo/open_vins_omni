@@ -20,7 +20,6 @@
  */
 
 #include "ROS2Visualizer.h"
-
 #include "core/VioManager.h"
 #include "ros/ROSVisualizerHelper.h"
 #include "sim/Simulator.h"
@@ -31,6 +30,7 @@
 #include "utils/print.h"
 #include "utils/sensor_data.h"
 
+
 #define DEG2RAD 3.1415926 / 180.0
 
 using namespace ov_core;
@@ -38,7 +38,7 @@ using namespace ov_type;
 using namespace ov_msckf;
 
 ROS2Visualizer::ROS2Visualizer(std::shared_ptr<rclcpp::Node> node, std::shared_ptr<VioManager> app, std::shared_ptr<Simulator> sim)
-    : _node(node), _app(app), _sim(sim), thread_update_running(false) {
+    : _node(node), _app(app), _sim(sim), thread_update_running(false), correct_timestamp_(false) {
 
   // Setup our transform broadcaster
   mTfBr = std::make_shared<tf2_ros::TransformBroadcaster>(node);
@@ -160,6 +160,8 @@ ROS2Visualizer::ROS2Visualizer(std::shared_ptr<rclcpp::Node> node, std::shared_p
     });
     thread.detach();
   }
+
+  correct_timestamp_ = node->get_parameter<bool>("correct_timestamp", correct_timestamp_);
 }
 
 void ROS2Visualizer::setup_subscribers(std::shared_ptr<ov_core::YamlParser> parser) {
@@ -176,6 +178,25 @@ void ROS2Visualizer::setup_subscribers(std::shared_ptr<ov_core::YamlParser> pars
                                                               std::bind(&ROS2Visualizer::callback_inertial, this, std::placeholders::_1));
   PRINT_INFO("subscribing to IMU: %s\n", topic_imu.c_str());
 
+  if(correct_timestamp_)
+  {
+    std::vector<std::string> topics;
+    std::vector<double> freqs;
+    topics.push_back(topic_imu);
+    freqs.push_back(50.0);
+
+    if(_app->get_params().state_options.num_cameras == 1)
+    {
+      parser->parse_external("relative_config_imucam", "cam" + std::to_string(0), "rostopic", image_topic_);
+      topics.push_back(image_topic_);
+      freqs.push_back(20.0);
+    }
+
+    timestamp_cor_.set_topic_freq(topics, freqs);
+    imu_topic_ = topic_imu;
+  }
+
+
   // Logic for sync stereo subscriber
   // https://answers.ros.org/question/96346/subscribe-to-two-image_raws-with-one-function/?answer=96491#post-id-96491
   if (_app->get_params().state_options.num_cameras == 2) {
@@ -190,7 +211,7 @@ void ROS2Visualizer::setup_subscribers(std::shared_ptr<ov_core::YamlParser> pars
     // Create sync filter (they have unique pointers internally, so we have to use move logic here...)
     auto image_sub0 = std::make_shared<message_filters::Subscriber<sensor_msgs::msg::Image>>(_node, cam_topic0);
     auto image_sub1 = std::make_shared<message_filters::Subscriber<sensor_msgs::msg::Image>>(_node, cam_topic1);
-    auto sync = std::make_shared<message_filters::Synchronizer<sync_pol>>(sync_pol(50), *image_sub0, *image_sub1);
+    auto sync = std::make_shared<message_filters::Synchronizer<sync_pol>>(sync_pol(10), *image_sub0, *image_sub1);
     sync->registerCallback(std::bind(&ROS2Visualizer::callback_stereo, this, std::placeholders::_1, std::placeholders::_2, 0, 1));
     // sync->registerCallback([](const sensor_msgs::msg::Image::SharedPtr msg0, const sensor_msgs::msg::Image::SharedPtr msg1)
     // {callback_stereo(msg0, msg1, 0, 1);});
@@ -443,6 +464,17 @@ void ROS2Visualizer::callback_inertial(const sensor_msgs::msg::Imu::SharedPtr ms
   ov_core::ImuData message;
   message.timestamp = msg->header.stamp.sec + msg->header.stamp.nanosec * 1e-9;
   message.timestamp += _app->get_params().imu_to_camera_time_shift; // 0310 data known time shift
+  if(correct_timestamp_)
+  {
+    double corrected_imu_timestamp = message.timestamp;
+    common_tools::TimestampCorrectionStatus ts_cor_status = timestamp_cor_.try_correct(imu_topic_, message.timestamp, corrected_imu_timestamp);
+    if(ts_cor_status != common_tools::TimestampCorrectionStatus::CORRECTED)
+    {
+      PRINT_INFO("###############\ntimestamp may be wrong!\n###############\n");
+    }
+    message.timestamp = corrected_imu_timestamp;
+  }
+
   if(_app->get_params().imu_angular_velocity_unit == 1)
   {
     message.wm << msg->angular_velocity.x * DEG2RAD, msg->angular_velocity.y * DEG2RAD, msg->angular_velocity.z * DEG2RAD;
@@ -510,6 +542,15 @@ void ROS2Visualizer::callback_monocular(const sensor_msgs::msg::Image::SharedPtr
   
   // Check if we should drop this image
   double timestamp = msg0->header.stamp.sec + msg0->header.stamp.nanosec * 1e-9;
+  double corrected_timestamp = timestamp;
+  if(correct_timestamp_)
+  {
+    auto status = timestamp_cor_.try_correct(image_topic_, timestamp, corrected_timestamp);
+    if(status != common_tools::TimestampCorrectionStatus::CORRECTED)
+    {
+      PRINT_INFO("###############\ntimestamp may be wrong!\n###############\n");
+    }    
+  }
   double time_delta = 1.0 / _app->get_params().track_frequency;
   if (camera_last_timestamp.find(cam_id0) != camera_last_timestamp.end() && timestamp < camera_last_timestamp.at(cam_id0) + time_delta) {
     return;
@@ -527,7 +568,14 @@ void ROS2Visualizer::callback_monocular(const sensor_msgs::msg::Image::SharedPtr
 
   // Create the measurement
   ov_core::CameraData message;
-  message.timestamp = cv_ptr->header.stamp.sec + cv_ptr->header.stamp.nanosec * 1e-9;
+  if(correct_timestamp_)
+  {
+    message.timestamp = corrected_timestamp;
+  }
+  else
+  {
+    message.timestamp = cv_ptr->header.stamp.sec + cv_ptr->header.stamp.nanosec * 1e-9;
+  }
   message.sensor_ids.push_back(cam_id0);
   message.images.push_back(cv_ptr->image.clone());
 
@@ -550,6 +598,12 @@ void ROS2Visualizer::callback_stereo(const sensor_msgs::msg::Image::ConstSharedP
 
   // Check if we should drop this image
   double timestamp = msg0->header.stamp.sec + msg0->header.stamp.nanosec * 1e-9;
+  double timestamp1 = msg1->header.stamp.sec + msg1->header.stamp.nanosec * 1e-9;
+  double time_diff = timestamp1 - timestamp;
+  if(time_diff > 1.0e-3)
+  {
+    PRINT_INFO("######################\nstereo time diff: %f\n######################\n", time_diff);
+  }
   double time_delta = 1.0 / _app->get_params().track_frequency;
   if (camera_last_timestamp.find(cam_id0) != camera_last_timestamp.end() && timestamp < camera_last_timestamp.at(cam_id0) + time_delta) {
     return;

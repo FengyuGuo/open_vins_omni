@@ -21,12 +21,17 @@ if (NOT ENABLE_ROS)
 endif ()
 add_definitions(-DROS_AVAILABLE=2)
 
+set(timestamp_correction_INCLUDE_DIR /home/guo/common_tools/timestamp_correction/include)
+
+set(timestamp_correction_LIB /home/guo/common_tools/timestamp_correction/build/libtimestamp_correction_ros2.so)
+
 # Include our header files
 include_directories(
         src
         ${EIGEN3_INCLUDE_DIR}
         ${Boost_INCLUDE_DIRS}
         ${CERES_INCLUDE_DIRS}
+        ${timestamp_correction_INCLUDE_DIR}
 )
 
 # Set link libraries used by all binaries
@@ -34,6 +39,7 @@ list(APPEND thirdparty_libraries
         ${Boost_LIBRARIES}
         ${CERES_LIBRARIES}
         ${OpenCV_LIBRARIES}
+        ${timestamp_correction_LIB}
 )
 list(APPEND ament_libraries
         rclcpp
