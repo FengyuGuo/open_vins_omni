@@ -17,7 +17,7 @@ launch_args = [
     ),
     DeclareLaunchArgument(
         name="config",
-        default_value="yarbot",
+        default_value="yarbo_day",
         description="euroc_mav, tum_vi, rpng_aruco...",
     ),
     DeclareLaunchArgument(
@@ -32,12 +32,12 @@ launch_args = [
     ),
     DeclareLaunchArgument(
         name="use_stereo",
-        default_value="true",
+        default_value="false",
         description="if we have more than 1 camera, if we should try to track stereo constraints between pairs",
     ),
     DeclareLaunchArgument(
         name="max_cameras",
-        default_value="2",
+        default_value="1",
         description="how many cameras we have 1 = mono, 2 = stereo, >2 = binocular (all mono tracking)",
     ),
     DeclareLaunchArgument(
@@ -58,7 +58,7 @@ launch_args = [
     ),
     DeclareLaunchArgument(
         name="correct_timestamp",
-        default_value="true", 
+        default_value="false", 
         description="correct the timestmap of sensors with sensor frequency"
     )
 ]
