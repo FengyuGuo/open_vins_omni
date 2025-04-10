@@ -38,7 +38,7 @@ using namespace ov_type;
 using namespace ov_msckf;
 
 ROS2Visualizer::ROS2Visualizer(std::shared_ptr<rclcpp::Node> node, std::shared_ptr<VioManager> app, std::shared_ptr<Simulator> sim)
-    : _node(node), _app(app), _sim(sim), thread_update_running(false), correct_timestamp_(false) {
+    : _node(node), _app(app), _sim(sim), thread_update_running(false), correct_timestamp_(false), combined_image_(false), combined_cam_id_(1) {
 
   // Setup our transform broadcaster
   mTfBr = std::make_shared<tf2_ros::TransformBroadcaster>(node);
@@ -162,6 +162,8 @@ ROS2Visualizer::ROS2Visualizer(std::shared_ptr<rclcpp::Node> node, std::shared_p
   }
 
   correct_timestamp_ = node->get_parameter<bool>("correct_timestamp", correct_timestamp_);
+
+  combined_image_ = node->get_parameter<bool>("combined_image", combined_image_);
 }
 
 void ROS2Visualizer::setup_subscribers(std::shared_ptr<ov_core::YamlParser> parser) {
@@ -185,7 +187,7 @@ void ROS2Visualizer::setup_subscribers(std::shared_ptr<ov_core::YamlParser> pars
     topics.push_back(topic_imu);
     freqs.push_back(50.0);
 
-    if(_app->get_params().state_options.num_cameras == 1)
+    if(_app->get_params().state_options.num_cameras == 1 || combined_image_ == true)
     {
       parser->parse_external("relative_config_imucam", "cam" + std::to_string(0), "rostopic", image_topic_);
       topics.push_back(image_topic_);
@@ -193,13 +195,16 @@ void ROS2Visualizer::setup_subscribers(std::shared_ptr<ov_core::YamlParser> pars
     }
 
     timestamp_cor_.set_topic_freq(topics, freqs);
+
+    timestamp_cor_.set_method(common_tools::TimestampCorrectionMethod::ADAPTIVE_5S);
     imu_topic_ = topic_imu;
   }
 
 
   // Logic for sync stereo subscriber
   // https://answers.ros.org/question/96346/subscribe-to-two-image_raws-with-one-function/?answer=96491#post-id-96491
-  if (_app->get_params().state_options.num_cameras == 2) {
+  // normal case. left and right image are in separate topics
+  if (_app->get_params().state_options.num_cameras == 2 && combined_image_ == false) {
     // Read in the topics
     std::string cam_topic0, cam_topic1;
     _node->declare_parameter<std::string>("topic_camera" + std::to_string(0), "/cam" + std::to_string(0) + "/image_raw");
@@ -576,21 +581,47 @@ void ROS2Visualizer::callback_monocular(const sensor_msgs::msg::Image::SharedPtr
   {
     message.timestamp = cv_ptr->header.stamp.sec + cv_ptr->header.stamp.nanosec * 1e-9;
   }
-  message.sensor_ids.push_back(cam_id0);
-  message.images.push_back(cv_ptr->image.clone());
+  if(combined_image_ == false)
+  {
+    message.sensor_ids.push_back(cam_id0);
+    message.images.push_back(cv_ptr->image.clone());
 
-  // Load the mask if we are using it, else it is empty
-  // TODO: in the future we should get this from external pixel segmentation
-  if (_app->get_params().use_mask) {
-    message.masks.push_back(_app->get_params().masks.at(cam_id0));
-  } else {
-    message.masks.push_back(cv::Mat::zeros(cv_ptr->image.rows, cv_ptr->image.cols, CV_8UC1));
+    // Load the mask if we are using it, else it is empty
+    // TODO: in the future we should get this from external pixel segmentation
+    if (_app->get_params().use_mask) {
+      message.masks.push_back(_app->get_params().masks.at(cam_id0));
+    } else {
+      message.masks.push_back(cv::Mat::zeros(cv_ptr->image.rows, cv_ptr->image.cols, CV_8UC1));
+    }
+       
+  }
+  else
+  {
+    message.sensor_ids.push_back(cam_id0);
+    message.sensor_ids.push_back(combined_cam_id_);
+
+    int width = cv_ptr->image.cols;
+    int height = cv_ptr->image.rows;
+
+    cv::Mat left = cv_ptr->image(cv::Rect(0, 0, width / 2, height));
+    cv::Mat right = cv_ptr->image(cv::Rect(width / 2, 0, width - width / 2, height));
+
+    message.images.push_back(left.clone());
+    message.images.push_back(right.clone());
+
+    if (_app->get_params().use_mask) {
+      message.masks.push_back(_app->get_params().masks.at(cam_id0));
+      message.masks.push_back(_app->get_params().masks.at(combined_cam_id_));
+    } else {
+      message.masks.push_back(cv::Mat::zeros(left.rows, left.cols, CV_8UC1));
+      message.masks.push_back(cv::Mat::zeros(right.rows, right.cols, CV_8UC1));
+    }
   }
 
   // append it to our queue of images
   std::lock_guard<std::mutex> lck(camera_queue_mtx);
   camera_queue.push_back(message);
-  std::sort(camera_queue.begin(), camera_queue.end());
+  std::sort(camera_queue.begin(), camera_queue.end()); 
 }
 
 void ROS2Visualizer::callback_stereo(const sensor_msgs::msg::Image::ConstSharedPtr msg0, const sensor_msgs::msg::Image::ConstSharedPtr msg1,

@@ -214,6 +214,10 @@ protected:
   bool correct_timestamp_;
   common_tools::TimestampCorrection timestamp_cor_;
   std::string imu_topic_, image_topic_;
+
+  // stereo image is combined in left image topic
+  bool combined_image_;
+  int combined_cam_id_;
 };
 
 } // namespace ov_msckf

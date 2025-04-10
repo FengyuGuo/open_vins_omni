@@ -32,12 +32,12 @@ launch_args = [
     ),
     DeclareLaunchArgument(
         name="use_stereo",
-        default_value="false",
+        default_value="true",
         description="if we have more than 1 camera, if we should try to track stereo constraints between pairs",
     ),
     DeclareLaunchArgument(
         name="max_cameras",
-        default_value="1",
+        default_value="2",
         description="how many cameras we have 1 = mono, 2 = stereo, >2 = binocular (all mono tracking)",
     ),
     DeclareLaunchArgument(
@@ -58,9 +58,15 @@ launch_args = [
     ),
     DeclareLaunchArgument(
         name="correct_timestamp",
-        default_value="false", 
+        default_value="true", 
         description="correct the timestmap of sensors with sensor frequency"
+    ),
+    DeclareLaunchArgument(
+        name="combined_image",
+        default_value="true", 
+        description="left and right image is combined in left image"
     )
+
 ]
 
 def launch_setup(context):
@@ -106,7 +112,8 @@ def launch_setup(context):
             {"config_path": config_path},
             {"imu_time_shift": LaunchConfiguration("imu_time_shift")},
             {"imu_angular_velocity_unit": LaunchConfiguration("imu_angular_velocity_unit")},
-            {"correct_timestamp": LaunchConfiguration("correct_timestamp")}
+            {"correct_timestamp": LaunchConfiguration("correct_timestamp")},
+            {"combined_image": LaunchConfiguration("combined_image")}
         ],
     )
 
