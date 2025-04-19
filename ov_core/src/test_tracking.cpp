@@ -69,7 +69,7 @@ void handle_stereo(double time0, double time1, cv::Mat img0, cv::Mat img1);
 int main(int argc, char **argv) {
 
   // Ensure we have a path, if the user passes it then we should use it
-  std::string config_path = "unset_path.txt";
+  std::string config_path = "/home/guo/openvins_ws/src/open_vins/config/seeker_debug/estimator_config.yaml";
   if (argc > 1) {
     config_path = argv[1];
   }

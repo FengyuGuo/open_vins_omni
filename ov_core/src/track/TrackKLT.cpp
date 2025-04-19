@@ -132,7 +132,7 @@ void TrackKLT::feed_monocular(const CameraData &message, size_t msg_id) {
   auto pts_left_old = pts_last[cam_id];
   auto ids_left_old = ids_last[cam_id];
   perform_detection_monocular(img_pyramid_last[cam_id], img_mask_last[cam_id], pts_left_old, ids_left_old);
-  // PRINT_DEBUG("%lu pts after detection\n", ids_left_old.size());
+  PRINT_DEBUG("%lu pts after detection\n", ids_left_old.size());
   rT3 = boost::posix_time::microsec_clock::local_time();
 
   // Our return success masks, and predicted new features
@@ -497,6 +497,8 @@ void TrackKLT::perform_detection_monocular(const std::vector<cv::Mat> &img0pyr, 
     }
   }
   std::vector<cv::KeyPoint> pts0_ext;
+  // cv::imshow("raw_img", img0pyr.at(0));
+  // cv::waitKey(1);
   Grider_GRID::perform_griding(img0pyr.at(0), mask0_updated, valid_locs, pts0_ext, num_features, grid_x, grid_y, threshold, true);
   PRINT_DEBUG("%lu points after grid fast, threshold: %d\n", pts0_ext.size(), threshold);
   // Now, reject features that are close a current feature
@@ -876,7 +878,9 @@ void TrackKLT::perform_matching(const std::vector<cv::Mat> &img0pyr, const std::
   double max_focallength_img0 = std::max(camera_calib.at(id0)->get_K()(0, 0), camera_calib.at(id0)->get_K()(1, 1));
   double max_focallength_img1 = std::max(camera_calib.at(id1)->get_K()(0, 0), camera_calib.at(id1)->get_K()(1, 1));
   double max_focallength = std::max(max_focallength_img0, max_focallength_img1);
-  cv::findFundamentalMat(pts0_n, pts1_n, cv::FM_RANSAC, 2.0 / max_focallength, 0.999, mask_rsc);
+  PRINT_DEBUG("ransac thres: %f, max_focallength: %f\n", 2.0 / max_focallength, max_focallength);
+  // cv::findFundamentalMat(pts0_n, pts1_n, cv::FM_RANSAC, 2.0 / max_focallength, 0.999, mask_rsc);
+  cv::findFundamentalMat(pts0_n, pts1_n, cv::FM_RANSAC, 1.0, 0.999, mask_rsc);
 
   // Loop through and record only ones that are valid
   for (size_t i = 0; i < mask_klt.size(); i++) {
