@@ -13,7 +13,7 @@ cam0:
   resolution: [ 1088, 1280]
   distortion_model: omni
   timeshift_cam_imu: 0.05
-  rostopic: /fisheye/left/image_raw/
+  rostopic: /fisheye/left/image_raw/compressed
 
 cam1:
   T_imu_cam: 
@@ -27,7 +27,7 @@ cam1:
     633.852170385798]
   resolution: [1088, 1280]
   distortion_model: omni
-  rostopic: /fisheye/right/image_raw/
+  rostopic: /fisheye/right/image_raw/compressed
 
 cam2:
   T_imu_cam: 

@@ -110,7 +110,7 @@ bool InertialInitializer::initialize(double &timestamp, Eigen::MatrixXd &covaria
     double var_disp0, var_disp1;
     FeatureHelper::compute_disparity(_db, avg_disp0, var_disp0, num_features0, newest_time_allowed);
     FeatureHelper::compute_disparity(_db, avg_disp1, var_disp1, num_features1, newest_cam_time, newest_time_allowed);
-
+    PRINT_DEBUG("")
     // Return if we can't compute the disparity
     int feat_thresh = 15;
     if (num_features0 < feat_thresh || num_features1 < feat_thresh) {

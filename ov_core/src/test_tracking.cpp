@@ -94,7 +94,6 @@ int main(int argc, char **argv) {
   nh->param<std::string>("topic_camera1", topic_camera1, "/cam1/image_raw");
   parser->parse_external("relative_config_imucam", "cam" + std::to_string(0), "rostopic", topic_camera0);
   parser->parse_external("relative_config_imucam", "cam" + std::to_string(1), "rostopic", topic_camera1);
-
   // Location of the ROS bag we want to read in
   std::string path_to_bag;
   nh->param<std::string>("path_bag", path_to_bag, "/home/guo/dataset/seeker/office.bag");
@@ -119,8 +118,8 @@ int main(int argc, char **argv) {
   int num_pts = 200;
   int num_aruco = 1024;
   int fast_threshold = 20;
-  int grid_x = 5;
-  int grid_y = 3;
+  int grid_x = 10;
+  int grid_y = 10;
   int min_px_dist = 10;
   double knn_ratio = 0.70;
   bool do_downsizing = false;
@@ -242,7 +241,9 @@ int main(int argc, char **argv) {
       }
       // Save to our temp variable
       has_left = true;
-      cv::equalizeHist(cv_ptr->image, img0);
+      // cv::equalizeHist(cv_ptr->image, img0);
+      img0 = cv_ptr->image;
+      PRINT_DEBUG("type of image: %d\n", img0.type());
       if(do_downsizing)
       {
         cv::resize(img0, img0, cv::Size(img0.cols / 2, img0.rows / 2));
@@ -264,7 +265,8 @@ int main(int argc, char **argv) {
       }
       // Save to our temp variable
       has_right = true;
-      cv::equalizeHist(cv_ptr->image, img1);
+      // cv::equalizeHist(cv_ptr->image, img1);
+      img1 = cv_ptr->image;
       if(do_downsizing)
       {
         cv::resize(img1, img1, cv::Size(img1.cols / 2, img1.rows / 2));
@@ -308,7 +310,7 @@ void handle_stereo(double time0, double time1, cv::Mat img0, cv::Mat img1) {
     ball_velocity.x *= -1;
   if (ball_center.y < 0 || (int)ball_center.y > img0.rows)
     ball_velocity.y *= -1;
-  cv::circle(mask, ball_center, 100, cv::Scalar(255), cv::FILLED);
+  cv::circle(mask, ball_center, 50, cv::Scalar(255), cv::FILLED);
 
   // Process this new image
   ov_core::CameraData message;
@@ -331,7 +333,7 @@ void handle_stereo(double time0, double time1, cv::Mat img0, cv::Mat img1) {
   // Show our image!
   cv::imshow("Active Tracks", img_active);
   cv::imshow("Track History", img_history);
-  int key = cv::waitKey(500);
+  int key = cv::waitKey(100);
   if(key == 'q')
   {
     exit(0);

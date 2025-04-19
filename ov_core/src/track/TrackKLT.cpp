@@ -94,7 +94,7 @@ void TrackKLT::feed_new_camera(const CameraData &message) {
 }
 
 void TrackKLT::feed_monocular(const CameraData &message, size_t msg_id) {
-  PRINT_DEBUG("feed monocular\n");
+  PRINT_DEBUG("feed monocular to KLT tracker\n");
   
   // Lock this data feed for this camera
   size_t cam_id = message.sensor_ids.at(msg_id);
@@ -102,6 +102,7 @@ void TrackKLT::feed_monocular(const CameraData &message, size_t msg_id) {
 
   // Get our image objects for this image
   cv::Mat img = img_curr.at(cam_id);
+  PRINT_DEBUG("current camera size: %d, %d\n", img.cols, img.rows);
   std::vector<cv::Mat> imgpyr = img_pyramid_curr.at(cam_id);
   cv::Mat mask = message.masks.at(msg_id);
   // std::cout << img.size() << ", " << mask.size() << std::endl;
@@ -114,7 +115,7 @@ void TrackKLT::feed_monocular(const CameraData &message, size_t msg_id) {
     std::vector<cv::KeyPoint> good_left;
     std::vector<size_t> good_ids_left;
     perform_detection_monocular(imgpyr, mask, good_left, good_ids_left);
-    // PRINT_DEBUG("%lu pts after first detection\n", good_ids_left.size());
+    PRINT_DEBUG("%lu pts after first detection\n", good_ids_left.size());
     // Save the current image and pyramid
     std::lock_guard<std::mutex> lckv(mtx_last_vars);
     img_last[cam_id] = img;
@@ -497,7 +498,7 @@ void TrackKLT::perform_detection_monocular(const std::vector<cv::Mat> &img0pyr, 
   }
   std::vector<cv::KeyPoint> pts0_ext;
   Grider_GRID::perform_griding(img0pyr.at(0), mask0_updated, valid_locs, pts0_ext, num_features, grid_x, grid_y, threshold, true);
-
+  PRINT_DEBUG("%lu points after grid fast, threshold: %d\n", pts0_ext.size(), threshold);
   // Now, reject features that are close a current feature
   std::vector<cv::KeyPoint> kpts0_new;
   std::vector<cv::Point2f> pts0_new;

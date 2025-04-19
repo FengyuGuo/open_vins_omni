@@ -52,6 +52,10 @@ int main(int argc, char **argv) {
   }
 
 #if ROS_AVAILABLE == 1
+  // for(int i = 0; i < argc; i++)
+  // {
+  //   std::cout << argv[i] << std::endl;
+  // }
   // Launch our ros node
   ros::init(argc, argv, "run_subscribe_msckf");
   auto nh = std::make_shared<ros::NodeHandle>("~");

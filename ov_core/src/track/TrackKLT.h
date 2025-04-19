@@ -23,6 +23,7 @@
 #define OV_CORE_TRACK_KLT_H
 
 #include "TrackBase.h"
+#include "utils/print.h"
 
 namespace ov_core {
 
@@ -54,7 +55,10 @@ public:
   explicit TrackKLT(std::unordered_map<size_t, std::shared_ptr<CamBase>> cameras, int numfeats, int numaruco, bool stereo,
                     HistogramMethod histmethod, int fast_threshold, int gridx, int gridy, int minpxdist)
       : TrackBase(cameras, numfeats, numaruco, stereo, histmethod), threshold(fast_threshold), grid_x(gridx), grid_y(gridy),
-        min_px_dist(minpxdist) {}
+        min_px_dist(minpxdist) {
+          PRINT_DEBUG("TrackKLT params, numfeats: %d, numaruco: %d, stereo: %d, histmethod: %d, fast threshold: %d, gridx: %d, gridy: %d, minpxdist: %d",
+          numfeats, numaruco, stereo, histmethod, fast_threshold, gridx, gridy, minpxdist)
+        }
 
   /**
    * @brief Process a new image

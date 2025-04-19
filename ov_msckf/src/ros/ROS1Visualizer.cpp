@@ -31,6 +31,8 @@
 #include "utils/print.h"
 #include "utils/sensor_data.h"
 
+#include "opencv2/highgui.hpp"
+
 using namespace ov_core;
 using namespace ov_type;
 using namespace ov_msckf;
@@ -513,13 +515,18 @@ void ROS1Visualizer::callback_monocular(const sensor_msgs::ImageConstPtr &msg0, 
     PRINT_ERROR("cv_bridge exception: %s", e.what());
     return;
   }
+  // cv::imshow("img", cv_ptr->image);
+  // int key = cv::waitKey(1);
+  // if (key == 's')
+  // {
+  //   cv::imwrite("/home/guo/img.png", cv_ptr->image);
+  // }
 
   // Create the measurement
   ov_core::CameraData message;
   message.timestamp = cv_ptr->header.stamp.toSec();
   message.sensor_ids.push_back(cam_id0);
   message.images.push_back(cv_ptr->image.clone());
-  PRINT_DEBUG("callback monocular\n");
   // std::cout << cv_ptr->image.size() << std::endl;
   // Load the mask if we are using it, else it is empty
   // TODO: in the future we should get this from external pixel segmentation
