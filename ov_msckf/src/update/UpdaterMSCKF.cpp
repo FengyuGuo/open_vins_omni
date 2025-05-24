@@ -83,7 +83,7 @@ void UpdaterMSCKF::update(std::shared_ptr<State> state, std::vector<std::shared_
     for (const auto &pair : (*it0)->timestamps) {
       ct_meas += (*it0)->timestamps[pair.first].size();
     }
-
+    // PRINT_DEBUG("%d measurement for feat\n", ct_meas);
     // Remove if we don't have enough
     if (ct_meas < 2) {
       (*it0)->to_delete = true;
@@ -92,6 +92,7 @@ void UpdaterMSCKF::update(std::shared_ptr<State> state, std::vector<std::shared_
       it0++;
     }
   }
+  PRINT_DEBUG("%u MSCKF feats left after clean up\n", feature_vec.size());
   rT1 = boost::posix_time::microsec_clock::local_time();
 
   // 2. Create vector of cloned *CAMERA* poses at each of our clone timesteps
@@ -113,7 +114,7 @@ void UpdaterMSCKF::update(std::shared_ptr<State> state, std::vector<std::shared_
     // Append to our map
     clones_cam.insert({clone_calib.first, clones_cami});
   }
-
+  PRINT_DEBUG("")
   // 3. Try to triangulate all MSCKF or new SLAM features that have measurements
   auto it1 = feature_vec.begin();
   while (it1 != feature_vec.end()) {
@@ -121,17 +122,19 @@ void UpdaterMSCKF::update(std::shared_ptr<State> state, std::vector<std::shared_
     // Triangulate the feature and remove if it fails
     bool success_tri = true;
     if (initializer_feat->config().triangulate_1d) {
+      // PRINT_DEBUG("single tri 1d\n");
       success_tri = initializer_feat->single_triangulation_1d(*it1, clones_cam);
     } else {
-      success_tri = initializer_feat->single_triangulation(*it1, clones_cam);
+      // PRINT_DEBUG("single tri\n");
+      success_tri = initializer_feat->single_triangulation(*it1, clones_cam); // init first
     }
 
     // Gauss-newton refine the feature
     bool success_refine = true;
     if (initializer_feat->config().refine_features) {
-      success_refine = initializer_feat->single_gaussnewton(*it1, clones_cam);
+      success_refine = initializer_feat->single_gaussnewton(*it1, clones_cam); // init refinement
     }
-
+    PRINT_DEBUG("init result, simple init: %d, init refine: %d\n", success_tri, success_refine);
     // Remove the feature if not a success
     if (!success_tri || !success_refine) {
       (*it1)->to_delete = true;
@@ -140,6 +143,7 @@ void UpdaterMSCKF::update(std::shared_ptr<State> state, std::vector<std::shared_
     }
     it1++;
   }
+  PRINT_DEBUG("%u feat left after init\n", feature_vec.size());
   rT2 = boost::posix_time::microsec_clock::local_time();
 
   // Calculate the max possible measurement size

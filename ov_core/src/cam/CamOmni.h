@@ -3,6 +3,7 @@
 
 #include "CamBase.h"
 #include "utils/tic_toc.h"
+#include "utils/print.h"
 
 namespace ov_core {
 
@@ -32,7 +33,9 @@ public:
         double fx = camera_values(0), fy = camera_values(1), cx = camera_values(2), cy = camera_values(3);
         double u = x_n * fx + cx;
         double v = y_n * fy + cy;
-        return Eigen::Vector2f(u, v);
+        // PRINT_DEBUG("omni undistort from %f, %f -> %f, %f\n", uv_dist.x(), uv_dist.y(), u, v);
+        return Eigen::Vector2f(x_n, y_n);
+        // return Eigen::Vector2f(u, v);
     }
 
     Eigen::Vector2f distort_f(const Eigen::Vector2f& uv_norm) override{
@@ -57,7 +60,11 @@ public:
 
     void compute_distort_jacobian(const Eigen::Vector2d &uv_norm, Eigen::MatrixXd &H_dz_dzn, Eigen::MatrixXd &H_dz_dzeta) override{
         printf("omni came jacobian is not emplemented yet!\n");
-        exit(1);
+        // exit(1);
+        H_dz_dzn.resize(2, 4);
+        H_dz_dzn.setZero();
+        H_dz_dzeta.resize(2, 4);
+        H_dz_dzeta.setZero();
     }
 private:
     /**

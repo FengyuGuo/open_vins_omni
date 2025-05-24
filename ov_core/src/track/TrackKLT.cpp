@@ -176,6 +176,7 @@ void TrackKLT::feed_monocular(const CameraData &message, size_t msg_id) {
       good_ids_left.push_back(ids_left_old[i]);
     }
   }
+  PRINT_DEBUG("%u good points after tracking\n", good_left.size());
 
   // Update our feature database, with theses new observations
   for (size_t i = 0; i < good_left.size(); i++) {
@@ -878,9 +879,9 @@ void TrackKLT::perform_matching(const std::vector<cv::Mat> &img0pyr, const std::
   double max_focallength_img0 = std::max(camera_calib.at(id0)->get_K()(0, 0), camera_calib.at(id0)->get_K()(1, 1));
   double max_focallength_img1 = std::max(camera_calib.at(id1)->get_K()(0, 0), camera_calib.at(id1)->get_K()(1, 1));
   double max_focallength = std::max(max_focallength_img0, max_focallength_img1);
-  PRINT_DEBUG("ransac thres: %f, max_focallength: %f\n", 2.0 / max_focallength, max_focallength);
+  // PRINT_DEBUG("ransac thres: %f, max_focallength: %f\n", 2.0 / max_focallength, max_focallength);
   // cv::findFundamentalMat(pts0_n, pts1_n, cv::FM_RANSAC, 2.0 / max_focallength, 0.999, mask_rsc);
-  cv::findFundamentalMat(pts0_n, pts1_n, cv::FM_RANSAC, 0.5, 0.999, mask_rsc);
+  cv::findFundamentalMat(pts0_n, pts1_n, cv::FM_RANSAC, 1.0, 0.999, mask_rsc);
 
   // Loop through and record only ones that are valid
   for (size_t i = 0; i < mask_klt.size(); i++) {

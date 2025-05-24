@@ -94,9 +94,9 @@ bool FeatureInitializer::single_triangulation(std::shared_ptr<Feature> feat,
   singularValues = svd.singularValues();
   double condA = singularValues(0, 0) / singularValues(singularValues.rows() - 1, 0);
 
-  // std::stringstream ss;
-  // ss << feat->featid << " - cond " << std::abs(condA) << " - z " << p_f(2, 0) << std::endl;
-  // PRINT_DEBUG(ss.str().c_str());
+  std::stringstream ss;
+  ss << feat->featid << " - cond " << std::abs(condA) << " - z " << p_f(2, 0) << std::endl;
+  PRINT_DEBUG(ss.str().c_str());
 
   // If we have a bad condition number, or it is too close
   // Then set the flag for bad (i.e. set z-axis to nan)
