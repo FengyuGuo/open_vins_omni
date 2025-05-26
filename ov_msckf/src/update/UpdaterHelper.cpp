@@ -364,7 +364,7 @@ void UpdaterHelper::get_feature_jacobian_full(std::shared_ptr<State> state, Upda
 
       // Compute Jacobians in respect to normalized image coordinates and possibly the camera intrinsics
       Eigen::MatrixXd dz_dzn, dz_dzeta;
-      PRINT_DEBUG("compute jacobian w.r.t camera intrinsic\n");
+      // PRINT_DEBUG("compute jacobian w.r.t camera intrinsic\n");
       state->_cam_intrinsics_cameras.at(pair.first)->compute_distort_jacobian(uv_norm, dz_dzn, dz_dzeta);
 
       // Normalized coordinates in respect to projection function

@@ -114,7 +114,6 @@ void UpdaterMSCKF::update(std::shared_ptr<State> state, std::vector<std::shared_
     // Append to our map
     clones_cam.insert({clone_calib.first, clones_cami});
   }
-  PRINT_DEBUG("")
   // 3. Try to triangulate all MSCKF or new SLAM features that have measurements
   auto it1 = feature_vec.begin();
   while (it1 != feature_vec.end()) {
@@ -229,14 +228,18 @@ void UpdaterMSCKF::update(std::shared_ptr<State> state, std::vector<std::shared_
     if (chi2 > _options.chi2_multipler * chi2_check) {
       (*it2)->to_delete = true;
       it2 = feature_vec.erase(it2);
-      // PRINT_DEBUG("featid = %d\n", feat.featid);
-      // PRINT_DEBUG("chi2 = %f > %f\n", chi2, _options.chi2_multipler*chi2_check);
+      PRINT_DEBUG("featid = %d\n", feat.featid);
+      PRINT_DEBUG("chi2 = %f > %f\n", chi2, _options.chi2_multipler*chi2_check);
       // std::stringstream ss;
       // ss << "res = " << std::endl << res.transpose() << std::endl;
       // PRINT_DEBUG(ss.str().c_str());
       continue;
     }
-
+    else
+    {
+      PRINT_DEBUG("featid = %d\n", feat.featid);
+      PRINT_DEBUG("chi2 = %f < %f\n", chi2, _options.chi2_multipler*chi2_check);
+    }
     // We are good!!! Append to our large H vector
     size_t ct_hx = 0;
     for (const auto &var : Hx_order) {
@@ -265,7 +268,7 @@ void UpdaterMSCKF::update(std::shared_ptr<State> state, std::vector<std::shared_
   for (size_t f = 0; f < feature_vec.size(); f++) {
     feature_vec[f]->to_delete = true;
   }
-
+  PRINT_DEBUG("%d features used in MSCKF\n", ct_meas);
   // Return if we don't have anything and resize our matrices
   if (ct_meas < 1) {
     return;

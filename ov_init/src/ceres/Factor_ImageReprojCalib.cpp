@@ -22,6 +22,7 @@
 #include "Factor_ImageReprojCalib.h"
 
 #include "utils/quat_ops.h"
+#include "utils/print.h"
 
 using namespace ov_init;
 
@@ -77,6 +78,7 @@ bool Factor_ImageReprojCalib::Evaluate(double const *const *parameters, double *
     cam.set_value(camera_vals);
     uv_dist = cam.distort_d(uv_norm);
     if (jacobians) {
+      // PRINT_DEBUG("compute jacobian\n");
       cam.compute_distort_jacobian(uv_norm, H_dz_dzn, H_dz_dzeta);
       H_dz_dzn = sqrtQ_gate * H_dz_dzn;
       H_dz_dzeta = sqrtQ_gate * H_dz_dzeta;
@@ -86,6 +88,7 @@ bool Factor_ImageReprojCalib::Evaluate(double const *const *parameters, double *
     cam.set_value(camera_vals);
     uv_dist = cam.distort_d(uv_norm);
     if (jacobians) {
+      // PRINT_DEBUG("compute jacobian%s\n");
       cam.compute_distort_jacobian(uv_norm, H_dz_dzn, H_dz_dzeta);
       H_dz_dzn = sqrtQ_gate * H_dz_dzn;
       H_dz_dzeta = sqrtQ_gate * H_dz_dzeta;

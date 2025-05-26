@@ -58,14 +58,61 @@ public:
         return Eigen::Vector2f(u, v);
     }
 
+    Eigen::Vector2f distort_space(const Eigen::Vector3f& xyz)
+    {
+        double u_d, v_d;
+        space2plane(xyz.x(), xyz.y(), xyz.z(), &u_d, &v_d); // omni camera projection
+        // printf("omni prjection %f, %f, 1.0 -> %f, %f\n", uv_norm.x(), uv_norm.y(), u_d, v_d);
+        Eigen::MatrixXd cam_d = camera_values;
+
+        // Calculate distorted coordinates for radtan distortion
+        double r = std::sqrt(u_d * u_d + v_d * v_d);
+        double r_2 = r * r;
+        double r_4 = r_2 * r_2;
+        double x1 = u_d * (1 + cam_d(4) * r_2 + cam_d(5) * r_4) + 2 * cam_d(6) * u_d * v_d +
+                    cam_d(7) * (r_2 + 2 * u_d * u_d);
+        double y1 = v_d * (1 + cam_d(4) * r_2 + cam_d(5) * r_4) + cam_d(6) * (r_2 + 2 * v_d * v_d) +
+                    2 * cam_d(7) * u_d * v_d;
+        double fx = cam_d(0), fy = cam_d(1), cx = cam_d(2), cy = cam_d(3);
+        double u = fx * x1 + cx, v = fy * y1 + cy;
+        return Eigen::Vector2f(u, v);
+    }
+
     void compute_distort_jacobian(const Eigen::Vector2d &uv_norm, Eigen::MatrixXd &H_dz_dzn, Eigen::MatrixXd &H_dz_dzeta) override{
-        printf("omni came jacobian is not emplemented yet!\n");
+        // printf("omni came jacobian is not emplemented yet!\n");
+        // PRINT_DEBUG("jacobian w.r.t distortion is not implemented yet!\n");
         // exit(1);
-        H_dz_dzn.resize(2, 4);
+        H_dz_dzn.resize(2, 2);
         H_dz_dzn.setZero();
-        H_dz_dzeta.resize(2, 4);
+        
+        double x = uv_norm.x(), y = uv_norm.y(), z = 1.0;
+        double _xi = xi_;
+        // from kalibr OmniCameraGeometry.cpp:211
+        double mx_u, my_u;
+        double norm, inv_denom;
+
+        norm = sqrt(x * x + y * y + z * z);
+        // Project points to the normalised plane
+        inv_denom = 1 / (z + _xi * norm);
+        mx_u = inv_denom * x;
+        my_u = inv_denom * y;
+
+        // Calculate jacobian
+        inv_denom = inv_denom * inv_denom / norm;
+        double dudx = inv_denom * (norm * z + _xi * (y * y + z * z));
+        double dvdx = -inv_denom * _xi * x * y;
+        double dudy = dvdx;
+        double dvdy = inv_denom * (norm * z + _xi * (x * x + z * z));
+
+        H_dz_dzn(0, 0) = dudx;
+        H_dz_dzn(0, 1) = dudy;
+        H_dz_dzn(1, 0) = dvdx;
+        H_dz_dzn(1, 1) = dvdy;
+
+        H_dz_dzeta.resize(2, 8);
         H_dz_dzeta.setZero();
     }
+
 private:
     /**
      * @brief migrate from kalibr omni camera projection
