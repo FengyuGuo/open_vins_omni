@@ -27,6 +27,8 @@
 
 #include <opencv2/opencv.hpp>
 
+#include "utils/print.h"
+
 namespace ov_core {
 
 /**
@@ -116,6 +118,7 @@ public:
     cv::Point2f pt_out;
     pt_out.x = ept2(0);
     pt_out.y = ept2(1);
+    // PRINT_DEBUG("undistort from %f, %f to %f, %f\n", uv_dist.x, uv_dist.y, pt_out.x, pt_out.y);
     return pt_out;
   }
 

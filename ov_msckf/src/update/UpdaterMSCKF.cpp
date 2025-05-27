@@ -92,7 +92,7 @@ void UpdaterMSCKF::update(std::shared_ptr<State> state, std::vector<std::shared_
       it0++;
     }
   }
-  PRINT_DEBUG("%u MSCKF feats left after clean up\n", feature_vec.size());
+  // PRINT_DEBUG("%u MSCKF feats left after clean up\n", feature_vec.size());
   rT1 = boost::posix_time::microsec_clock::local_time();
 
   // 2. Create vector of cloned *CAMERA* poses at each of our clone timesteps
@@ -133,7 +133,7 @@ void UpdaterMSCKF::update(std::shared_ptr<State> state, std::vector<std::shared_
     if (initializer_feat->config().refine_features) {
       success_refine = initializer_feat->single_gaussnewton(*it1, clones_cam); // init refinement
     }
-    PRINT_DEBUG("init result, simple init: %d, init refine: %d\n", success_tri, success_refine);
+    // PRINT_DEBUG("init result, simple init: %d, init refine: %d\n", success_tri, success_refine);
     // Remove the feature if not a success
     if (!success_tri || !success_refine) {
       (*it1)->to_delete = true;
@@ -142,7 +142,7 @@ void UpdaterMSCKF::update(std::shared_ptr<State> state, std::vector<std::shared_
     }
     it1++;
   }
-  PRINT_DEBUG("%u feat left after init\n", feature_vec.size());
+  // PRINT_DEBUG("%u feat left after init\n", feature_vec.size());
   rT2 = boost::posix_time::microsec_clock::local_time();
 
   // Calculate the max possible measurement size
@@ -228,8 +228,8 @@ void UpdaterMSCKF::update(std::shared_ptr<State> state, std::vector<std::shared_
     if (chi2 > _options.chi2_multipler * chi2_check) {
       (*it2)->to_delete = true;
       it2 = feature_vec.erase(it2);
-      PRINT_DEBUG("featid = %d\n", feat.featid);
-      PRINT_DEBUG("chi2 = %f > %f\n", chi2, _options.chi2_multipler*chi2_check);
+      // PRINT_DEBUG("featid = %d\n", feat.featid);
+      // PRINT_DEBUG("chi2 = %f > %f\n", chi2, _options.chi2_multipler*chi2_check);
       // std::stringstream ss;
       // ss << "res = " << std::endl << res.transpose() << std::endl;
       // PRINT_DEBUG(ss.str().c_str());
@@ -237,8 +237,8 @@ void UpdaterMSCKF::update(std::shared_ptr<State> state, std::vector<std::shared_
     }
     else
     {
-      PRINT_DEBUG("featid = %d\n", feat.featid);
-      PRINT_DEBUG("chi2 = %f < %f\n", chi2, _options.chi2_multipler*chi2_check);
+      // PRINT_DEBUG("featid = %d\n", feat.featid);
+      // PRINT_DEBUG("chi2 = %f < %f\n", chi2, _options.chi2_multipler*chi2_check);
     }
     // We are good!!! Append to our large H vector
     size_t ct_hx = 0;
@@ -268,7 +268,7 @@ void UpdaterMSCKF::update(std::shared_ptr<State> state, std::vector<std::shared_
   for (size_t f = 0; f < feature_vec.size(); f++) {
     feature_vec[f]->to_delete = true;
   }
-  PRINT_DEBUG("%d features used in MSCKF\n", ct_meas);
+  // PRINT_DEBUG("%d features used in MSCKF\n", ct_meas);
   // Return if we don't have anything and resize our matrices
   if (ct_meas < 1) {
     return;

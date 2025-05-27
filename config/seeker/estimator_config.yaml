@@ -2,10 +2,10 @@
 
 verbosity: "ALL" # ALL, DEBUG, INFO, WARNING, ERROR, SILENT
 
-use_fej: true # if first-estimate Jacobians should be used (enable for good consistency)
+use_fej: false # if first-estimate Jacobians should be used (enable for good consistency)
 integration: "rk4" # discrete, rk4, analytical (if rk4 or analytical used then analytical covariance propagation is used)
 use_stereo: false # if we have more than 1 camera, if we should try to track stereo constraints between pairs
-max_cameras: 1 # how many cameras we have 1 = mono, 2 = stereo, >2 = binocular (all mono tracking)
+max_cameras: 2 # how many cameras we have 1 = mono, 2 = stereo, >2 = binocular (all mono tracking)
 
 calib_cam_extrinsics: true # if the transform between camera and IMU should be optimized R_ItoC, p_CinI
 calib_cam_intrinsics: false # if camera intrinsics should be optimized (focal, center, distortion)
@@ -19,9 +19,9 @@ max_slam_in_update: 25 # update can be split into sequential updates of batches,
 max_msckf_in_update: 40 # how many MSCKF features to use in the update
 dt_slam_delay: 1 # delay before initializing (helps with stability from bad initialization...)
 
-gravity_mag: 9.81 # magnitude of gravity in this location
+gravity_mag: 9.8 # magnitude of gravity in this location
 
-feat_rep_msckf: "GLOBAL_3D"
+feat_rep_msckf: "ANCHORED_MSCKF_INVERSE_DEPTH"
 feat_rep_slam: "ANCHORED_MSCKF_INVERSE_DEPTH"
 feat_rep_aruco: "ANCHORED_MSCKF_INVERSE_DEPTH"
 
@@ -80,8 +80,8 @@ filepath_gt: "/tmp/ov_groundtruth.txt"
 use_klt: true # if true we will use KLT, otherwise use a ORB descriptor + robust matching
 num_pts: 400 # number of points (per camera) we will extract and try to track
 fast_threshold: 15 # threshold for fast extraction (warning: lower threshs can be expensive)
-grid_x: 10 # extraction sub-grid count for horizontal direction (uniform tracking)
-grid_y: 10 # extraction sub-grid count for vertical direction (uniform tracking)
+grid_x: 20 # extraction sub-grid count for horizontal direction (uniform tracking)
+grid_y: 20 # extraction sub-grid count for vertical direction (uniform tracking)
 min_px_dist: 20 # distance between features (features near each other provide less information)
 knn_ratio: 0.70 # descriptor knn threshold for the top two descriptor matches
 track_frequency: 20.0 # frequency we will perform feature tracking at (in frames per second / hertz)

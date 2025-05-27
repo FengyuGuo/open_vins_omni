@@ -4,6 +4,7 @@
 #include "CamBase.h"
 #include "utils/tic_toc.h"
 #include "utils/print.h"
+#include "cmath"
 
 namespace ov_core {
 
@@ -30,9 +31,9 @@ public:
         // std::cout << "omni lift projective cost " << tic.toc() << "ms\n"; 
         // printf("lift %f, %f to %f, %f, %f\n", uv_dist.x(), uv_dist.y(), x, y, z);
         double x_n = x / z, y_n = y / z;
-        double fx = camera_values(0), fy = camera_values(1), cx = camera_values(2), cy = camera_values(3);
-        double u = x_n * fx + cx;
-        double v = y_n * fy + cy;
+        // double fx = camera_values(0), fy = camera_values(1), cx = camera_values(2), cy = camera_values(3);
+        // double u = x_n * fx + cx;
+        // double v = y_n * fy + cy;
         // PRINT_DEBUG("omni undistort from %f, %f -> %f, %f\n", uv_dist.x(), uv_dist.y(), u, v);
         return Eigen::Vector2f(x_n, y_n);
         // return Eigen::Vector2f(u, v);
@@ -85,29 +86,20 @@ public:
         H_dz_dzn.resize(2, 2);
         H_dz_dzn.setZero();
         
-        double x = uv_norm.x(), y = uv_norm.y(), z = 1.0;
-        double _xi = xi_;
-        // from kalibr OmniCameraGeometry.cpp:211
-        double mx_u, my_u;
-        double norm, inv_denom;
+        double x = uv_norm.x(), y = uv_norm.y();
+        double xi = xi_;
+        
+        double fx = camera_values(0), fy = camera_values(1);
+        double k1 = camera_values(4), k2 = camera_values(5), p1 = camera_values(6), p2 = camera_values(7);
 
-        norm = sqrt(x * x + y * y + z * z);
-        // Project points to the normalised plane
-        inv_denom = 1 / (z + _xi * norm);
-        mx_u = inv_denom * x;
-        my_u = inv_denom * y;
-
-        // Calculate jacobian
-        inv_denom = inv_denom * inv_denom / norm;
-        double dudx = inv_denom * (norm * z + _xi * (y * y + z * z));
-        double dvdx = -inv_denom * _xi * x * y;
-        double dudy = dvdx;
-        double dvdy = inv_denom * (norm * z + _xi * (x * x + z * z));
-
-        H_dz_dzn(0, 0) = dudx;
-        H_dz_dzn(0, 1) = dudy;
-        H_dz_dzn(1, 0) = dvdx;
-        H_dz_dzn(1, 1) = dvdy;
+        H_dz_dzn(0, 0) = // d z_u / dx
+            fx*(-4*p1*pow(x, 2)*xi*y/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2*p1*y/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + p2*(-2*pow(x, 4)*xi/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) - 2*pow(x, 3)*xi/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + 3*pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) - 2*x*xi*pow(y, 2)/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2*x/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) - pow(x, 2)*xi*(k1*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2*pow(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2) + 1)/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + x*(k1*(-2*pow(x, 3)*xi/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) - 2*x*xi*pow(y, 2)/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2*x/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2))*(-4*pow(x, 3)*xi/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) - 4*x*xi*pow(y, 2)/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + 4*x/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)))/(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0) + (k1*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2*pow(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2) + 1)/(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0));
+        H_dz_dzn(0, 1) = // d z_u / dy
+            fx*(-4*p1*x*xi*pow(y, 2)/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2*p1*x/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + p2*(-2*pow(x, 3)*xi*y/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) - 2*pow(x, 2)*xi*y/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) - 2*xi*pow(y, 3)/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2*y/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) - x*xi*y*(k1*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2*pow(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2) + 1)/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + x*(k1*(-2*pow(x, 2)*xi*y/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) - 2*xi*pow(y, 3)/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2*y/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2))*(-4*pow(x, 2)*xi*y/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) - 4*xi*pow(y, 3)/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + 4*y/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)))/(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0));
+        H_dz_dzn(1, 0) = // d z_v / dx
+            fy*(p1*(-2*pow(x, 3)*xi/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) - 2*pow(x, 2)*xi*pow(y, 2)/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) - 2*x*xi*pow(y, 2)/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2*x/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) - 4*p2*pow(x, 2)*xi*y/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2*p2*y/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) - x*xi*y*(k1*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2*pow(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2) + 1)/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + y*(k1*(-2*pow(x, 3)*xi/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) - 2*x*xi*pow(y, 2)/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2*x/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2))*(-4*pow(x, 3)*xi/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) - 4*x*xi*pow(y, 2)/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + 4*x/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)))/(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0));
+        H_dz_dzn(1, 1) = // d z_v / dy
+            fy*(p1*(-2*pow(x, 2)*xi*y/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) - 2*x*xi*pow(y, 3)/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2*x*y/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) - 2*xi*pow(y, 3)/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2*y/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) - 4*p2*x*xi*pow(y, 2)/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2*p2*x/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) - xi*pow(y, 2)*(k1*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2*pow(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2) + 1)/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + y*(k1*(-2*pow(x, 2)*xi*y/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) - 2*xi*pow(y, 3)/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2*y/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2))*(-4*pow(x, 2)*xi*y/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) - 4*xi*pow(y, 3)/(pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)) + 4*y/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)))/(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0) + (k1*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2*pow(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2) + 1)/(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0));
 
         H_dz_dzeta.resize(2, 8);
         H_dz_dzeta.setZero();

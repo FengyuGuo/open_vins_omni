@@ -374,7 +374,7 @@ void VioManager::do_feature_propagate_update(const ov_core::CameraData &message)
       feats_slam = trackARUCO->get_feature_database()->features_containing(state->margtimestep(), false, true);
     }
   }
-  PRINT_DEBUG("%u lost feature, %u slam feature, %u marg feature\n", feats_lost.size(), feats_slam.size(), feats_marg.size());
+  // PRINT_DEBUG("%u lost feature, %u slam feature, %u marg feature\n", feats_lost.size(), feats_slam.size(), feats_marg.size());
 
   // Remove any lost features that were from other image streams
   // E.g: if we are cam1 and cam0 has not processed yet, we don't want to try to use those in the update yet
@@ -427,7 +427,7 @@ void VioManager::do_feature_propagate_update(const ov_core::CameraData &message)
       it2++;
     }
   }
-  PRINT_DEBUG("%u features reackes max tracks\n", feats_maxtracks.size());
+  // PRINT_DEBUG("%u features reackes max tracks\n", feats_maxtracks.size());
 
   // Count how many aruco tags we have in our state
   int curr_aruco_tags = 0;
@@ -499,7 +499,7 @@ void VioManager::do_feature_propagate_update(const ov_core::CameraData &message)
   std::vector<std::shared_ptr<Feature>> featsup_MSCKF = feats_lost;
   featsup_MSCKF.insert(featsup_MSCKF.end(), feats_marg.begin(), feats_marg.end());
   featsup_MSCKF.insert(featsup_MSCKF.end(), feats_maxtracks.begin(), feats_maxtracks.end());
-  PRINT_DEBUG("%u MSCKF features\n", featsup_MSCKF.size());
+  // PRINT_DEBUG("%u MSCKF features\n", featsup_MSCKF.size());
 
   //===================================================================================
   // Now that we have a list of features, lets do the EKF update for MSCKF and SLAM!

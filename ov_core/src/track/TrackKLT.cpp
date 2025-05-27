@@ -94,7 +94,7 @@ void TrackKLT::feed_new_camera(const CameraData &message) {
 }
 
 void TrackKLT::feed_monocular(const CameraData &message, size_t msg_id) {
-  PRINT_DEBUG("feed monocular to KLT tracker\n");
+  // PRINT_DEBUG("feed monocular to KLT tracker\n");
   
   // Lock this data feed for this camera
   size_t cam_id = message.sensor_ids.at(msg_id);
@@ -102,7 +102,7 @@ void TrackKLT::feed_monocular(const CameraData &message, size_t msg_id) {
 
   // Get our image objects for this image
   cv::Mat img = img_curr.at(cam_id);
-  PRINT_DEBUG("current camera size: %d, %d\n", img.cols, img.rows);
+  // PRINT_DEBUG("current camera size: %d, %d\n", img.cols, img.rows);
   std::vector<cv::Mat> imgpyr = img_pyramid_curr.at(cam_id);
   cv::Mat mask = message.masks.at(msg_id);
   // std::cout << img.size() << ", " << mask.size() << std::endl;
@@ -132,7 +132,7 @@ void TrackKLT::feed_monocular(const CameraData &message, size_t msg_id) {
   auto pts_left_old = pts_last[cam_id];
   auto ids_left_old = ids_last[cam_id];
   perform_detection_monocular(img_pyramid_last[cam_id], img_mask_last[cam_id], pts_left_old, ids_left_old);
-  PRINT_DEBUG("%lu pts after detection\n", ids_left_old.size());
+  // PRINT_DEBUG("%lu pts after detection\n", ids_left_old.size());
   rT3 = boost::posix_time::microsec_clock::local_time();
 
   // Our return success masks, and predicted new features
@@ -176,7 +176,7 @@ void TrackKLT::feed_monocular(const CameraData &message, size_t msg_id) {
       good_ids_left.push_back(ids_left_old[i]);
     }
   }
-  PRINT_DEBUG("%u good points after tracking\n", good_left.size());
+  // PRINT_DEBUG("%u good points after tracking\n", good_left.size());
 
   // Update our feature database, with theses new observations
   for (size_t i = 0; i < good_left.size(); i++) {
@@ -501,7 +501,7 @@ void TrackKLT::perform_detection_monocular(const std::vector<cv::Mat> &img0pyr, 
   // cv::imshow("raw_img", img0pyr.at(0));
   // cv::waitKey(1);
   Grider_GRID::perform_griding(img0pyr.at(0), mask0_updated, valid_locs, pts0_ext, num_features, grid_x, grid_y, threshold, true);
-  PRINT_DEBUG("%lu points after grid fast, threshold: %d\n", pts0_ext.size(), threshold);
+  // PRINT_DEBUG("%lu points after grid fast, threshold: %d\n", pts0_ext.size(), threshold);
   // Now, reject features that are close a current feature
   std::vector<cv::KeyPoint> kpts0_new;
   std::vector<cv::Point2f> pts0_new;
@@ -872,6 +872,7 @@ void TrackKLT::perform_matching(const std::vector<cv::Mat> &img0pyr, const std::
   for (size_t i = 0; i < pts0.size(); i++) {
     pts0_n.push_back(camera_calib.at(id0)->undistort_cv(pts0.at(i)));
     pts1_n.push_back(camera_calib.at(id1)->undistort_cv(pts1.at(i)));
+    // PRINT_DEBUG("match candidate: %f, %f -> %f, %f \n", pts0_n.back().x, pts0_n.back().y, pts1_n.back().x, pts1_n.back().y);
   }
 
   // Do RANSAC outlier rejection (note since we normalized the max pixel error is now in the normalized cords)

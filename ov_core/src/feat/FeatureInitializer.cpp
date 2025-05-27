@@ -94,9 +94,9 @@ bool FeatureInitializer::single_triangulation(std::shared_ptr<Feature> feat,
   singularValues = svd.singularValues();
   double condA = singularValues(0, 0) / singularValues(singularValues.rows() - 1, 0);
 
-  std::stringstream ss;
-  ss << feat->featid << " - cond " << std::abs(condA) << " - z " << p_f(2, 0) << std::endl;
-  PRINT_DEBUG(ss.str().c_str());
+  // std::stringstream ss;
+  // ss << feat->featid << " - cond " << std::abs(condA) << " - z " << p_f(2, 0) << std::endl;
+  // PRINT_DEBUG(ss.str().c_str());
 
   // If we have a bad condition number, or it is too close
   // Then set the flag for bad (i.e. set z-axis to nan)
@@ -364,7 +364,7 @@ bool FeatureInitializer::single_gaussnewton(std::shared_ptr<Feature> feat,
   // 1. If the feature is too close
   // 2. If the feature is invalid
   // 3. If the baseline ratio is large
-  PRINT_DEBUG("feature depth in anchor frame: %f\n", feat->p_FinA(2));
+  // PRINT_DEBUG("feature depth in anchor frame: %f\n", feat->p_FinA(2));
   if (feat->p_FinA(2) < _options.min_dist || feat->p_FinA(2) > _options.max_dist ||
       (feat->p_FinA.norm() / base_line_max) > _options.max_baseline || std::isnan(feat->p_FinA.norm())) {
     return false;
