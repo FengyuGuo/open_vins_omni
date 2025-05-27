@@ -103,6 +103,34 @@ public:
 
         H_dz_dzeta.resize(2, 8);
         H_dz_dzeta.setZero();
+
+        H_dz_dzeta(0, 0) = // fx
+            2*p1*x*y/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + p2*(pow(x, 3)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + x*(k1*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2*pow(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2) + 1)/(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0);
+        H_dz_dzeta(0, 1) = 0; // fy
+        H_dz_dzeta(0, 2) = 1; // cx
+        H_dz_dzeta(0, 3) = 0; // cy
+        H_dz_dzeta(0, 4) = // k1
+            fx*x*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2))/(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0);
+        H_dz_dzeta(0, 5) = // k2
+            fx*x*pow(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2)/(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0);
+        H_dz_dzeta(0, 6) = // p1
+            2*fx*x*y/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2);
+        H_dz_dzeta(0, 7) = // p2
+            fx*(pow(x, 3)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2));
+        
+        H_dz_dzeta(1, 0) = 0; // fx
+        H_dz_dzeta(1, 1) = // fy
+            p1*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + x*pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + 2*p2*x*y/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + y*(k1*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2*pow(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2) + 1)/(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0);
+        H_dz_dzeta(1, 2) = 0; // cx
+        H_dz_dzeta(1, 3) = 1; // cy
+        H_dz_dzeta(1, 4) = // k1
+            fy*y*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2))/(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0);
+        H_dz_dzeta(1, 5) = // k2
+            fy*y*pow(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2)/(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0);
+        H_dz_dzeta(1, 6) = // p1
+            fy*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + x*pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2));
+        H_dz_dzeta(1, 7) = // p2
+            2*fy*x*y/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2);
     }
 
 private:
