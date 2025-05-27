@@ -2,8 +2,6 @@
 #define OV_CORE_CAM_OMNI_H
 
 #include "CamBase.h"
-#include "utils/tic_toc.h"
-#include "utils/print.h"
 #include "cmath"
 
 namespace ov_core {
@@ -19,31 +17,16 @@ public:
         mat.at<float>(0, 0) = uv_dist.x();
         mat.at<float>(0, 1) = uv_dist.y();
         mat = mat.reshape(2);
-        // TicToc tic;
-        // std::cout << "camera matrix: \n" << camera_k_OPENCV << std::endl;
-        // std::cout << "camera distortion: \n" << camera_d_OPENCV << std::endl;
         cv::undistortPoints(mat, mat, camera_k_OPENCV, camera_d_OPENCV); //undistort with radtan camera model
-        // std::cout << "cv::undistortPoints cost " << tic.toc() << "ms\n";
-        // printf("start omni undistortion\n");
-        // PRINT_DEBUG("cam intrinsic: %f, %f, %f, %f\n", camera_values(0), camera_values(1), camera_values(2), camera_values(3));
-        // tic.tic();
         omni_lift_projective(mat.at<float>(0), mat.at<float>(1), &x, &y, &z);
-        // std::cout << "omni lift projective cost " << tic.toc() << "ms\n"; 
-        // printf("lift %f, %f to %f, %f, %f\n", uv_dist.x(), uv_dist.y(), x, y, z);
         double x_n = x / z, y_n = y / z;
-        // double fx = camera_values(0), fy = camera_values(1), cx = camera_values(2), cy = camera_values(3);
-        // double u = x_n * fx + cx;
-        // double v = y_n * fy + cy;
-        // PRINT_DEBUG("omni undistort from %f, %f -> %f, %f\n", uv_dist.x(), uv_dist.y(), u, v);
         return Eigen::Vector2f(x_n, y_n);
-        // return Eigen::Vector2f(u, v);
     }
 
     Eigen::Vector2f distort_f(const Eigen::Vector2f& uv_norm) override{
 
         double u_d, v_d;
         space2plane(uv_norm.x(), uv_norm.y(), 1.0, &u_d, &v_d); // omni camera projection
-        // printf("omni prjection %f, %f, 1.0 -> %f, %f\n", uv_norm.x(), uv_norm.y(), u_d, v_d);
         Eigen::MatrixXd cam_d = camera_values;
 
         // Calculate distorted coordinates for radtan distortion
@@ -63,7 +46,6 @@ public:
     {
         double u_d, v_d;
         space2plane(xyz.x(), xyz.y(), xyz.z(), &u_d, &v_d); // omni camera projection
-        // printf("omni prjection %f, %f, 1.0 -> %f, %f\n", uv_norm.x(), uv_norm.y(), u_d, v_d);
         Eigen::MatrixXd cam_d = camera_values;
 
         // Calculate distorted coordinates for radtan distortion
@@ -80,9 +62,6 @@ public:
     }
 
     void compute_distort_jacobian(const Eigen::Vector2d &uv_norm, Eigen::MatrixXd &H_dz_dzn, Eigen::MatrixXd &H_dz_dzeta) override{
-        // printf("omni came jacobian is not emplemented yet!\n");
-        // PRINT_DEBUG("jacobian w.r.t distortion is not implemented yet!\n");
-        // exit(1);
         H_dz_dzn.resize(2, 2);
         H_dz_dzn.setZero();
         
@@ -131,6 +110,11 @@ public:
             fy*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + x*pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2));
         H_dz_dzeta(1, 7) = // p2
             2*fy*x*y/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2);
+        
+        //dzx_dxi =
+        //  fx*(-4*p1*x*y*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) + p2*(-2*pow(x, 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 2*pow(x, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 2*pow(y, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)) + x*(k1*(-2*pow(x, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 2*pow(y, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)) + k2*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2))*(-4*pow(x, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 4*pow(y, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)))/(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0) - x*sqrt(pow(x, 2) + pow(y, 2) + 1)*(k1*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2*pow(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2));
+        //dzy_dxi =
+        //  fy*(p1*(-2*pow(x, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 2*x*pow(y, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 2*pow(y, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)) - 4*p2*x*y*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) + y*(k1*(-2*pow(x, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 2*pow(y, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)) + k2*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2))*(-4*pow(x, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 4*pow(y, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)))/(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0) - y*sqrt(pow(x, 2) + pow(y, 2) + 1)*(k1*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2*pow(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2));
     }
 
 private:
@@ -145,7 +129,6 @@ private:
      */
     void space2plane(double x, double y, double z, double *u, double *v) const {
         double mx_u, my_u, mx_d, my_d;
-        // double fx = camera_values(0), fy = camera_values(1), cx = camera_values(2), cy = camera_values(3);
         // Project points to the normalised plane
         z = z + xi_ * sqrt(x * x + y * y + z * z);
         mx_u = x / z;
@@ -217,23 +200,13 @@ private:
                                          double *Y, double *Z) const {
         double mx_u, my_u;
         double rho2_d;
-
-        // double fx = camera_values(0), fy = camera_values(1), cx = camera_values(2), cy = camera_values(3);
-        // mx_d = (u - cx) / fx;
-        // my_d = (v - cy) / fy;
-        
         omni_undistortGN(u, v, &mx_u, &my_u);
-        // printf("before undistort %f, %f, after %f, %f\n", mx_d, my_d, mx_u, my_u);
-        //std::cout << "lift projective: u: " << mx_u << ", v: " << my_u << std::endl;
-        // printf("xi is %f\n", xi_);
         // Obtain a projective ray
         // Reuse variable
         rho2_d = mx_u * mx_u + my_u * my_u;
         *X = mx_u;
         *Y = my_u;
         *Z = 1 - xi_ * (rho2_d + 1) / (xi_ + sqrt(1 + (1 - xi_ * xi_) * rho2_d));
-
-        //std::cout << "lift projective: p: " << *X << ", " << *Y << ", " << *Z << std::endl;
     }
     void omni_undistortGN(double u_d, double v_d, double * u,
                                      double * v) const {
@@ -247,11 +220,6 @@ private:
 
         double hat_u_d;
         double hat_v_d;
-
-        // void OmniCameraGeometry::distortion(double mx_u, double my_u, 
-        // 					  double *dx_u, double *dy_u,
-        // 					  double *dxdmx, double *dydmx,
-        // 					  double *dxdmy, double *dydmy) const
         for (int i = 0; i < n; i++) {
             omni_distortion(ubar, vbar, &hat_u_d, &hat_v_d, &F(0, 0), &F(1, 0), &F(0, 1),
                     &F(1, 1));

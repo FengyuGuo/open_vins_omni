@@ -175,7 +175,7 @@ int main(int argc, char **argv) {
     Eigen::MatrixXd cam_calib(8, 1);
     cam_calib << 1661.0508677925284, 1661.1166401802136, 524.1186764831461,  630.1494276574698, 
       -0.06727585259390413, 0.5842755541669968, 0.0017763603612335093, -0.0010270945769683538;
-    double fx = cam_calib(0), fy = cam_calib(1), cx = cam_calib(2), cy = cam_calib(3);
+    // double fx = cam_calib(0), fy = cam_calib(1), cx = cam_calib(2), cy = cam_calib(3);
     double xi = 3.2002462594632917;
     cam_ptr->set_xi(xi);
     std::cout << "xi: " << cam_ptr->get_xi() << std::endl;
