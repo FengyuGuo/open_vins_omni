@@ -166,8 +166,8 @@ int main(int argc, char **argv) {
   PRINT_DEBUG("downsize aruco image: %d\n", do_downsizing);
   PRINT_DEBUG("stereo tracking: %d\n", use_stereo);
 
-  const int IMG_WIDTH = 1088;
-  const int IMG_HEIGHT = 1280;
+  const int IMG_WIDTH = 640;
+  const int IMG_HEIGHT = 480;
   // Fake camera info (we don't need this, as we are not using the normalized coordinates for anything)
   std::unordered_map<size_t, std::shared_ptr<CamBase>> cameras;
   for (int i = 0; i < 1; i++) {
@@ -188,7 +188,7 @@ int main(int argc, char **argv) {
   Eigen::Matrix3f rot = aa.toRotationMatrix();
   std::cout << rot << std::endl;
   cv::Mat mapx(cv::Size(IMG_WIDTH, IMG_HEIGHT), CV_32FC1), mapy(cv::Size(IMG_WIDTH, IMG_HEIGHT), CV_32FC1);
-  float f = 450.0f;
+  float f = 300.0f;
   float cx = IMG_WIDTH / 2, cy = IMG_HEIGHT / 2;
   std::shared_ptr<CamOmni> cam_ptr = std::dynamic_pointer_cast<CamOmni>(cameras.begin()->second);
   for(int u = 0; u < IMG_WIDTH; u++)

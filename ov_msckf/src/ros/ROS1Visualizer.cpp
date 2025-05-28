@@ -182,16 +182,50 @@ void ROS1Visualizer::setup_subscribers(std::shared_ptr<ov_core::YamlParser> pars
     sync_subs_cam.push_back(image_sub1);
     PRINT_INFO("subscribing to cam (stereo): %s\n", cam_topic0.c_str());
     PRINT_INFO("subscribing to cam (stereo): %s\n", cam_topic1.c_str());
-  } else {
+  } 
+  else if(_app->get_params().state_options.num_cameras == 1 ||
+    (_app->get_params().state_options.num_cameras > 2 && !_app->get_params().state_options.camera_synced))
+  {
+    PRINT_INFO("set up single callback for %d non-synced cameras\n", _app->get_params().state_options.num_cameras)
     // Now we should add any non-stereo callbacks here
     for (int i = 0; i < _app->get_params().state_options.num_cameras; i++) {
       // read in the topic
       std::string cam_topic;
-      _nh->param<std::string>("topic_camera" + std::to_string(i), cam_topic, "/cam" + std::to_string(i) + "/image_raw");
+      // _nh->param<std::string>("topic_camera" + std::to_string(i), cam_topic, "/cam" + std::to_string(i) + "/image_raw");
       parser->parse_external("relative_config_imucam", "cam" + std::to_string(i), "rostopic", cam_topic);
       // create subscriber
       subs_cam.push_back(_nh->subscribe<sensor_msgs::Image>(cam_topic, 10, boost::bind(&ROS1Visualizer::callback_monocular, this, _1, i)));
       PRINT_INFO("subscribing to cam (mono): %s\n", cam_topic.c_str());
+    }
+  }
+  else if(_app->get_params().state_options.num_cameras > 2 && _app->get_params().state_options.camera_synced)
+  {
+    PRINT_INFO("set up synced callback for %d cameras\n", _app->get_params().state_options.num_cameras)
+    for (int i = 0; i < _app->get_params().state_options.num_cameras; i++) {
+      // read in the topic
+      std::string cam_topic;
+      // _nh->param<std::string>("topic_camera" + std::to_string(i), cam_topic, "/cam" + std::to_string(i) + "/image_raw");
+      parser->parse_external("relative_config_imucam", "cam" + std::to_string(i), "rostopic", cam_topic);
+      // create subscriber
+      auto image_sub = std::make_shared<message_filters::Subscriber<sensor_msgs::Image>>(*_nh, cam_topic, 1);
+      sync_subs_cam.push_back(image_sub);
+      PRINT_INFO("subscribing to cam (mono): %s\n", cam_topic.c_str());
+    }
+    if(_app->get_params().state_options.num_cameras == 3)
+    {
+      auto sync = std::make_shared<message_filters::Synchronizer<sync_pol3>>(sync_pol3(10), *sync_subs_cam[0], *sync_subs_cam[1], *sync_subs_cam[2]);
+      sync->registerCallback(boost::bind(&ROS1Visualizer::callback_triple, this, _1, _2, _3, 0, 1, 2));
+      sync_cam3.push_back(sync);
+    }
+    else if(_app->get_params().state_options.num_cameras == 4)
+    {
+      auto sync = std::make_shared<message_filters::Synchronizer<sync_pol4>>(sync_pol4(10), *sync_subs_cam[0], *sync_subs_cam[1], *sync_subs_cam[2], *sync_subs_cam[3]);
+      sync->registerCallback(boost::bind(&ROS1Visualizer::callback_quattro, this, _1, _2, _3, _4, 0, 1, 2, 3));
+      sync_cam4.push_back(sync);
+    }
+    else
+    {
+      PRINT_WARNING("synced camera more than 4 cameras is not implemented yet!!\n");
     }
   }
 }
@@ -468,7 +502,19 @@ void ROS1Visualizer::callback_inertial(const sensor_msgs::Imu::ConstPtr &msg) {
     // If we do not have enough unique cameras then we need to wait
     // We should wait till we have one of each camera to ensure we propagate in the correct order
     auto params = _app->get_params();
-    size_t num_unique_cameras = (params.state_options.num_cameras == 2) ? 1 : params.state_options.num_cameras;
+    size_t num_unique_cameras = 0;
+    if(params.state_options.num_cameras == 2)
+    {
+      num_unique_cameras = 1;
+    }
+    else if(params.state_options.num_cameras > 2 && params.state_options.camera_synced)
+    {
+      num_unique_cameras = 1;
+    }
+    else
+    {
+      num_unique_cameras = params.state_options.num_cameras;
+    }
     if (unique_cam_ids.size() == num_unique_cameras) {
 
       // Loop through our queue and see if we are able to process any of our camera measurements
@@ -589,6 +635,155 @@ void ROS1Visualizer::callback_stereo(const sensor_msgs::ImageConstPtr &msg0, con
     // message.masks.push_back(cv::Mat(cv_ptr0->image.rows, cv_ptr0->image.cols, CV_8UC1, cv::Scalar(255)));
     message.masks.push_back(cv::Mat::zeros(cv_ptr0->image.rows, cv_ptr0->image.cols, CV_8UC1));
     message.masks.push_back(cv::Mat::zeros(cv_ptr1->image.rows, cv_ptr1->image.cols, CV_8UC1));
+  }
+
+  // append it to our queue of images
+  std::lock_guard<std::mutex> lck(camera_queue_mtx);
+  camera_queue.push_back(message);
+  std::sort(camera_queue.begin(), camera_queue.end());
+}
+
+
+void ROS1Visualizer::callback_triple(const sensor_msgs::ImageConstPtr &msg0, const sensor_msgs::ImageConstPtr &msg1, const sensor_msgs::ImageConstPtr &msg2, int cam_id0, int cam_id1, int cam_id2)
+{
+  PRINT_DEBUG("got 3 camera images!\n");
+  // Check if we should drop this image
+  double timestamp = msg0->header.stamp.toSec();
+  double time_delta = 1.0 / _app->get_params().track_frequency;
+  if (camera_last_timestamp.find(cam_id0) != camera_last_timestamp.end() && timestamp < camera_last_timestamp.at(cam_id0) + time_delta) {
+    return;
+  }
+  camera_last_timestamp[cam_id0] = timestamp;
+
+  // Get the image
+  cv_bridge::CvImageConstPtr cv_ptr0;
+  try {
+    cv_ptr0 = cv_bridge::toCvShare(msg0, sensor_msgs::image_encodings::MONO8);
+  } catch (cv_bridge::Exception &e) {
+    PRINT_ERROR("cv_bridge exception: %s\n", e.what());
+    return;
+  }
+
+  // Get the image
+  cv_bridge::CvImageConstPtr cv_ptr1;
+  try {
+    cv_ptr1 = cv_bridge::toCvShare(msg1, sensor_msgs::image_encodings::MONO8);
+  } catch (cv_bridge::Exception &e) {
+    PRINT_ERROR("cv_bridge exception: %s\n", e.what());
+    return;
+  }
+
+  // Get the image
+  cv_bridge::CvImageConstPtr cv_ptr2;
+  try {
+    cv_ptr2 = cv_bridge::toCvShare(msg2, sensor_msgs::image_encodings::MONO8);
+  } catch (cv_bridge::Exception &e) {
+    PRINT_ERROR("cv_bridge exception: %s\n", e.what());
+    return;
+  }
+
+  // Create the measurement
+  ov_core::CameraData message;
+  message.timestamp = cv_ptr0->header.stamp.toSec();
+  message.sensor_ids.push_back(cam_id0);
+  message.sensor_ids.push_back(cam_id1);
+  message.sensor_ids.push_back(cam_id2);
+  message.images.push_back(cv_ptr0->image.clone());
+  message.images.push_back(cv_ptr1->image.clone());
+  message.images.push_back(cv_ptr2->image.clone());
+
+  // Load the mask if we are using it, else it is empty
+  // TODO: in the future we should get this from external pixel segmentation
+  if (_app->get_params().use_mask) {
+    message.masks.push_back(_app->get_params().masks.at(cam_id0));
+    message.masks.push_back(_app->get_params().masks.at(cam_id1));
+    message.masks.push_back(_app->get_params().masks.at(cam_id2));
+  } else {
+    // message.masks.push_back(cv::Mat(cv_ptr0->image.rows, cv_ptr0->image.cols, CV_8UC1, cv::Scalar(255)));
+    message.masks.push_back(cv::Mat::zeros(cv_ptr0->image.rows, cv_ptr0->image.cols, CV_8UC1));
+    message.masks.push_back(cv::Mat::zeros(cv_ptr1->image.rows, cv_ptr1->image.cols, CV_8UC1));
+    message.masks.push_back(cv::Mat::zeros(cv_ptr2->image.rows, cv_ptr2->image.cols, CV_8UC1));
+  }
+
+  // append it to our queue of images
+  std::lock_guard<std::mutex> lck(camera_queue_mtx);
+  camera_queue.push_back(message);
+  std::sort(camera_queue.begin(), camera_queue.end());
+}
+
+
+void ROS1Visualizer::callback_quattro(const sensor_msgs::ImageConstPtr &msg0, const sensor_msgs::ImageConstPtr &msg1, const sensor_msgs::ImageConstPtr &msg2, const sensor_msgs::ImageConstPtr &msg3, int cam_id0, int cam_id1, int cam_id2, int cam_id3)
+{
+  PRINT_DEBUG("got 4 camera images!\n");
+
+  double timestamp = msg0->header.stamp.toSec();
+  double time_delta = 1.0 / _app->get_params().track_frequency;
+  if (camera_last_timestamp.find(cam_id0) != camera_last_timestamp.end() && timestamp < camera_last_timestamp.at(cam_id0) + time_delta) {
+    return;
+  }
+  camera_last_timestamp[cam_id0] = timestamp;
+
+  // Get the image
+  cv_bridge::CvImageConstPtr cv_ptr0;
+  try {
+    cv_ptr0 = cv_bridge::toCvShare(msg0, sensor_msgs::image_encodings::MONO8);
+  } catch (cv_bridge::Exception &e) {
+    PRINT_ERROR("cv_bridge exception: %s\n", e.what());
+    return;
+  }
+
+  // Get the image
+  cv_bridge::CvImageConstPtr cv_ptr1;
+  try {
+    cv_ptr1 = cv_bridge::toCvShare(msg1, sensor_msgs::image_encodings::MONO8);
+  } catch (cv_bridge::Exception &e) {
+    PRINT_ERROR("cv_bridge exception: %s\n", e.what());
+    return;
+  }
+
+  // Get the image
+  cv_bridge::CvImageConstPtr cv_ptr2;
+  try {
+    cv_ptr2 = cv_bridge::toCvShare(msg2, sensor_msgs::image_encodings::MONO8);
+  } catch (cv_bridge::Exception &e) {
+    PRINT_ERROR("cv_bridge exception: %s\n", e.what());
+    return;
+  }
+
+  // Get the image
+  cv_bridge::CvImageConstPtr cv_ptr3;
+  try {
+    cv_ptr3 = cv_bridge::toCvShare(msg3, sensor_msgs::image_encodings::MONO8);
+  } catch (cv_bridge::Exception &e) {
+    PRINT_ERROR("cv_bridge exception: %s\n", e.what());
+    return;
+  }
+
+  // Create the measurement
+  ov_core::CameraData message;
+  message.timestamp = cv_ptr0->header.stamp.toSec();
+  message.sensor_ids.push_back(cam_id0);
+  message.sensor_ids.push_back(cam_id1);
+  message.sensor_ids.push_back(cam_id2);
+  message.sensor_ids.push_back(cam_id3);
+  message.images.push_back(cv_ptr0->image.clone());
+  message.images.push_back(cv_ptr1->image.clone());
+  message.images.push_back(cv_ptr2->image.clone());
+  message.images.push_back(cv_ptr3->image.clone());
+
+  // Load the mask if we are using it, else it is empty
+  // TODO: in the future we should get this from external pixel segmentation
+  if (_app->get_params().use_mask) {
+    message.masks.push_back(_app->get_params().masks.at(cam_id0));
+    message.masks.push_back(_app->get_params().masks.at(cam_id1));
+    message.masks.push_back(_app->get_params().masks.at(cam_id2));
+    message.masks.push_back(_app->get_params().masks.at(cam_id3));
+  } else {
+    // message.masks.push_back(cv::Mat(cv_ptr0->image.rows, cv_ptr0->image.cols, CV_8UC1, cv::Scalar(255)));
+    message.masks.push_back(cv::Mat::zeros(cv_ptr0->image.rows, cv_ptr0->image.cols, CV_8UC1));
+    message.masks.push_back(cv::Mat::zeros(cv_ptr1->image.rows, cv_ptr1->image.cols, CV_8UC1));
+    message.masks.push_back(cv::Mat::zeros(cv_ptr2->image.rows, cv_ptr2->image.cols, CV_8UC1));
+    message.masks.push_back(cv::Mat::zeros(cv_ptr3->image.rows, cv_ptr3->image.cols, CV_8UC1));
   }
 
   // append it to our queue of images

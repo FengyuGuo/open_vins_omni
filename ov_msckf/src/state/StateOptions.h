@@ -82,6 +82,9 @@ struct StateOptions {
   /// Number of distinct cameras that we will observe features in
   int num_cameras = 1;
 
+  /// Cameras are synced (Same timestamp)
+  bool camera_synced = false;
+
   /// What representation our features are in (msckf features)
   ov_type::LandmarkRepresentation::Representation feat_rep_msckf = ov_type::LandmarkRepresentation::Representation::GLOBAL_3D;
 
@@ -125,6 +128,7 @@ struct StateOptions {
       parser->parse_config("max_msckf_in_update", max_msckf_in_update);
       parser->parse_config("num_aruco", max_aruco_features);
       parser->parse_config("max_cameras", num_cameras);
+      parser->parse_config("camera_synced", camera_synced);
 
       // Feature representations
       std::string rep1 = ov_type::LandmarkRepresentation::as_string(feat_rep_msckf);
@@ -169,6 +173,7 @@ struct StateOptions {
     PRINT_DEBUG("  - max_msckf_in_update: %d\n", max_msckf_in_update);
     PRINT_DEBUG("  - max_aruco: %d\n", max_aruco_features);
     PRINT_DEBUG("  - max_cameras: %d\n", num_cameras);
+    PRINT_DEBUG("  - camera_synced: %d\n", camera_synced);
     PRINT_DEBUG("  - feat_rep_msckf: %s\n", ov_type::LandmarkRepresentation::as_string(feat_rep_msckf).c_str());
     PRINT_DEBUG("  - feat_rep_slam: %s\n", ov_type::LandmarkRepresentation::as_string(feat_rep_slam).c_str());
     PRINT_DEBUG("  - feat_rep_aruco: %s\n", ov_type::LandmarkRepresentation::as_string(feat_rep_aruco).c_str());

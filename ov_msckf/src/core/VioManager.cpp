@@ -263,7 +263,7 @@ void VioManager::track_image_and_update(const ov_core::CameraData &message_const
   for (size_t i = 0; i < message_const.sensor_ids.size() - 1; i++) {
     assert(message_const.sensor_ids.at(i) != message_const.sensor_ids.at(i + 1));
   }
-
+  PRINT_DEBUG("%u camera msg got, cam id: %d\n", message_const.sensor_ids.size(), message_const.sensor_ids.front());
   // Downsample if we are downsampling
   ov_core::CameraData message = message_const;
   for (size_t i = 0; i < message.sensor_ids.size() && params.downsample_cameras; i++) {
@@ -374,7 +374,7 @@ void VioManager::do_feature_propagate_update(const ov_core::CameraData &message)
       feats_slam = trackARUCO->get_feature_database()->features_containing(state->margtimestep(), false, true);
     }
   }
-  // PRINT_DEBUG("%u lost feature, %u slam feature, %u marg feature\n", feats_lost.size(), feats_slam.size(), feats_marg.size());
+  PRINT_DEBUG("%u lost feature, %u marg feature\n", feats_lost.size(), feats_marg.size());
 
   // Remove any lost features that were from other image streams
   // E.g: if we are cam1 and cam0 has not processed yet, we don't want to try to use those in the update yet
@@ -414,6 +414,7 @@ void VioManager::do_feature_propagate_update(const ov_core::CameraData &message)
     // See if any of our camera's reached max track
     bool reached_max = false;
     for (const auto &cams : (*it2)->timestamps) {
+      // PRINT_DEBUG("feature obs size: %u\n", cams.second.size());
       if ((int)cams.second.size() > state->_options.max_clone_size) {
         reached_max = true;
         break;
@@ -427,7 +428,7 @@ void VioManager::do_feature_propagate_update(const ov_core::CameraData &message)
       it2++;
     }
   }
-  // PRINT_DEBUG("%u features reackes max tracks\n", feats_maxtracks.size());
+  PRINT_DEBUG("%u features reackes max tracks\n", feats_maxtracks.size());
 
   // Count how many aruco tags we have in our state
   int curr_aruco_tags = 0;
@@ -452,6 +453,7 @@ void VioManager::do_feature_propagate_update(const ov_core::CameraData &message)
       feats_maxtracks.erase(feats_maxtracks.end() - valid_amount, feats_maxtracks.end());
     }
   }
+  PRINT_INFO("%u slam features\n", feats_slam.size());
 
   // Loop through current SLAM features, we have tracks of them, grab them for this update!
   // NOTE: if we have a slam feature that has lost tracking, then we should marginalize it out
