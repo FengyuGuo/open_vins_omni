@@ -646,7 +646,6 @@ void ROS1Visualizer::callback_stereo(const sensor_msgs::ImageConstPtr &msg0, con
 
 void ROS1Visualizer::callback_triple(const sensor_msgs::ImageConstPtr &msg0, const sensor_msgs::ImageConstPtr &msg1, const sensor_msgs::ImageConstPtr &msg2, int cam_id0, int cam_id1, int cam_id2)
 {
-  PRINT_DEBUG("got 3 camera images!\n");
   // Check if we should drop this image
   double timestamp = msg0->header.stamp.toSec();
   double time_delta = 1.0 / _app->get_params().track_frequency;
@@ -714,8 +713,6 @@ void ROS1Visualizer::callback_triple(const sensor_msgs::ImageConstPtr &msg0, con
 
 void ROS1Visualizer::callback_quattro(const sensor_msgs::ImageConstPtr &msg0, const sensor_msgs::ImageConstPtr &msg1, const sensor_msgs::ImageConstPtr &msg2, const sensor_msgs::ImageConstPtr &msg3, int cam_id0, int cam_id1, int cam_id2, int cam_id3)
 {
-  PRINT_DEBUG("got 4 camera images!\n");
-
   double timestamp = msg0->header.stamp.toSec();
   double time_delta = 1.0 / _app->get_params().track_frequency;
   if (camera_last_timestamp.find(cam_id0) != camera_last_timestamp.end() && timestamp < camera_last_timestamp.at(cam_id0) + time_delta) {
