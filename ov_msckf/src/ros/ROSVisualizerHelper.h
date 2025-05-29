@@ -71,6 +71,14 @@ public:
    * @return TF of our pose in global (e.g. q_ItoG, p_IinG)
    */
   static tf::StampedTransform get_stamped_transform_from_pose(const std::shared_ptr<ov_type::PoseJPL> &pose, bool flip_trans);
+
+  /**
+   * @brief Get the pointcloud tf object to visualize stereo point cloud from seeker omni
+   * 
+   * @param direction front, right, back, left
+   * @return tf::StampedTransform 
+   */
+  static tf::StampedTransform get_pointcloud_tf(const std::string& direction);
 #endif
 
 #if ROS_AVAILABLE == 2

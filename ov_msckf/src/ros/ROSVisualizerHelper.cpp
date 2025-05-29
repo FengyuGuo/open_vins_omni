@@ -86,6 +86,51 @@ tf::StampedTransform ROSVisualizerHelper::get_stamped_transform_from_pose(const 
   trans.setOrigin(orig);
   return trans;
 }
+
+tf::StampedTransform ROSVisualizerHelper::get_pointcloud_tf(const std::string& direction)
+{
+  Eigen::Matrix3d R = Eigen::Matrix3d::Identity();
+  tf::Vector3 orig(0, 0, 0);
+  if(direction == "front")
+  {
+    R << 1, 0, 0,
+      0, 0, 1,
+      0, -1, 0;
+    orig.setY(0.03);
+  }
+  else if(direction == "back")
+  {
+    R << -1, 0, 0,
+      0, 0, -1,
+      0, -1, 0;
+    orig.setY(-0.03);
+  }
+  else if(direction == "right")
+  {
+    R << 0, 0, 1,
+      -1, 0, 0,
+      0, -1, 0;
+    orig.setX(0.03);
+  }
+  else if(direction == "left")
+  {
+    R << 0, 0, -1,
+      1, 0, 0,
+      0, -1, 0;
+    orig.setX(-0.03);
+  }
+  else
+  {
+    PRINT_WARNING("direction %s is not implemented yet!\n", direction.c_str());
+  }
+  Eigen::Quaterniond q(R);
+  tf::StampedTransform trans;
+  trans.stamp_ = ros::Time::now();
+  tf::Quaternion quat(q.coeffs()(0), q.coeffs()(1), q.coeffs()(2), q.coeffs()(3));
+  trans.setRotation(quat);
+  trans.setOrigin(orig);
+  return trans;
+}
 #endif
 
 #if ROS_AVAILABLE == 2
