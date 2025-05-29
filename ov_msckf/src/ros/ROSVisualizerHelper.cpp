@@ -89,6 +89,7 @@ tf::StampedTransform ROSVisualizerHelper::get_stamped_transform_from_pose(const 
 
 tf::StampedTransform ROSVisualizerHelper::get_pointcloud_tf(const std::string& direction)
 {
+  //TODO: use more accurate transform data??
   Eigen::Matrix3d R = Eigen::Matrix3d::Identity();
   tf::Vector3 orig(0, 0, 0);
   if(direction == "front")
