@@ -2,7 +2,7 @@
 
 verbosity: "ALL" # ALL, DEBUG, INFO, WARNING, ERROR, SILENT
 
-use_fej: false # if first-estimate Jacobians should be used (enable for good consistency)
+use_fej: true # if first-estimate Jacobians should be used (enable for good consistency)
 integration: "rk4" # discrete, rk4, analytical (if rk4 or analytical used then analytical covariance propagation is used)
 use_stereo: false # if we have more than 1 camera, if we should try to track stereo constraints between pairs
 max_cameras: 2 # how many cameras we have 1 = mono, 2 = stereo, >2 = binocular (all mono tracking)
@@ -20,7 +20,7 @@ max_slam_in_update: 25 # update can be split into sequential updates of batches,
 max_msckf_in_update: 40 # how many MSCKF features to use in the update
 dt_slam_delay: 1 # delay before initializing (helps with stability from bad initialization...)
 
-gravity_mag: 9.8 # magnitude of gravity in this location
+gravity_mag: 9.81 # magnitude of gravity in this location
 
 feat_rep_msckf: "ANCHORED_MSCKF_INVERSE_DEPTH"
 feat_rep_slam: "ANCHORED_MSCKF_INVERSE_DEPTH"

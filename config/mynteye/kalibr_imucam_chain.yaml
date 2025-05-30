@@ -12,7 +12,7 @@ cam0:
   distortion_model: equidistant
   intrinsics: [365.98961538446184, 365.46908463045156, 367.3270177127296, 236.2963254819165]
   resolution: [752, 480]
-  rostopic: /mynteye/left/image_raw/compressed
+  rostopic: /mynteye/left/image_raw/
 
 cam1:
   T_imu_cam: #rotation from camera to IMU R_CtoI, position of camera in IMU p_CinI
@@ -26,4 +26,4 @@ cam1:
   distortion_model: equidistant
   intrinsics: [365.95851062807463, 365.5029456246703, 378.2666108678507, 232.00938864852623]
   resolution: [752, 480]
-  rostopic: /mynteye/right/image_raw/compressed
+  rostopic: /mynteye/right/image_raw/
