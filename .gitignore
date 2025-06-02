@@ -8,5 +8,5 @@ doxgen_generated
 *.swo
 doc
 .vscode
-config/mynteye
 **.pyc
+**.so

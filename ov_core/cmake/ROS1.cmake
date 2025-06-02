@@ -3,6 +3,22 @@ cmake_minimum_required(VERSION 3.3)
 # Find ROS build system
 find_package(catkin QUIET COMPONENTS roscpp rosbag sensor_msgs cv_bridge)
 
+set(CMAKE_CXX_STANDARD 14)
+# set(CMAKE_BUILD_TYPE "debug")
+add_definitions(-w)
+add_definitions(-g)
+
+set(TRT_INCLUDE_DIR /opt/tensorrt8/include)
+set(TRT_LIB_DIR /opt/tensorrt8/lib)
+file(GLOB TRT_LIBS ${TRT_LIB_DIR}/*.so)
+set(CUDNN_LIB_DIR /opt/cudnn8/lib)
+file(GLOB CUDNN_LIBS ${CUDNN_LIB_DIR}/*)
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/3rdparty/tensorrtbuffer)
+
+find_package(CUDA REQUIRED)
+find_package(yaml-cpp REQUIRED)
+
 # Describe ROS project
 option(ENABLE_ROS "Enable or disable building with ROS (if it is found)" ON)
 if (catkin_FOUND AND ENABLE_ROS)
@@ -27,13 +43,22 @@ include_directories(
         ${EIGEN3_INCLUDE_DIR}
         ${Boost_INCLUDE_DIRS}
         ${catkin_INCLUDE_DIRS}
+        ${CUDA_INCLUDE_DIRS}
+        ${YAML_CPP_INCLUDE_DIR}
+        ${TRT_INCLUDE_DIR}
 )
-
+message(STATUS ${TRT_INCLUDE_DIR})
 # Set link libraries used by all binaries
 list(APPEND thirdparty_libraries
         ${Boost_LIBRARIES}
         ${OpenCV_LIBRARIES}
         ${catkin_LIBRARIES}
+        ${CUDA_LIBRARIES}
+        yaml-cpp
+        tensorrtbuffer
+        ${TRT_LIBS}
+        ${CUDNN_LIBS}
+        glog
 )
 
 ##################################################
@@ -50,6 +75,9 @@ list(APPEND LIBRARY_SOURCES
         src/track/TrackDescriptor.cpp
         src/track/TrackKLT.cpp
         src/track/TrackSIM.cpp
+        src/track/super_point.cpp
+        src/track/super_glue.cpp
+        src/track/TrackSPSG.cpp
         src/types/Landmark.cpp
         src/feat/Feature.cpp
         src/feat/FeatureDatabase.cpp

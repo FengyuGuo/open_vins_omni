@@ -466,6 +466,18 @@ struct VioManagerOptions {
   /// Frequency we want to track images at (higher freq ones will be dropped)
   double track_frequency = 20.0;
 
+  /// Use superpoint superglue feature tracking method
+  bool use_superglue = false;
+
+  /// superpoint superglue weight path
+  std::string superpoint_superglue_weight_dir;
+
+  /// superglue type
+  std::string superglue_type;
+
+  /// superpoint superglue config path
+  std::string superpoint_superglue_config_path;
+
   /// Parameters used by our feature initialize / triangulator
   ov_core::FeatureInitializerOptions featinit_options;
 
@@ -479,6 +491,7 @@ struct VioManagerOptions {
     if (parser != nullptr) {
       parser->parse_config("use_stereo", use_stereo);
       parser->parse_config("use_klt", use_klt);
+      parser->parse_config("use_superglue", use_superglue);
       parser->parse_config("use_aruco", use_aruco);
       parser->parse_config("downsize_aruco", downsize_aruco);
       parser->parse_config("downsample_cameras", downsample_cameras);
@@ -507,6 +520,10 @@ struct VioManagerOptions {
       }
       parser->parse_config("knn_ratio", knn_ratio);
       parser->parse_config("track_frequency", track_frequency);
+
+      parser->parse_config("superpoint_superglue_weight_dir", superpoint_superglue_weight_dir);
+      parser->parse_config("superpoint_superglue_config", superpoint_superglue_config_path);
+      parser->parse_config("superglue_type", superglue_type);
     }
     PRINT_DEBUG("FEATURE TRACKING PARAMETERS:\n");
     PRINT_DEBUG("  - use_stereo: %d\n", use_stereo);
@@ -524,6 +541,10 @@ struct VioManagerOptions {
     PRINT_DEBUG("  - hist method: %d\n", (int)histogram_method);
     PRINT_DEBUG("  - knn ratio: %.3f\n", knn_ratio);
     PRINT_DEBUG("  - track frequency: %.1f\n", track_frequency);
+
+    PRINT_DEBUG("  - superpoint superglue weight dir: %s\n", superpoint_superglue_weight_dir.c_str());
+    PRINT_DEBUG("  - superglue type: %s\n", superglue_type.c_str());
+    PRINT_DEBUG("  - superpoint superglue config: %s\n", superpoint_superglue_config_path.c_str());
     featinit_options.print(parser);
   }
 
