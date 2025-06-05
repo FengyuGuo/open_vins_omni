@@ -26,6 +26,7 @@
 #include "feat/FeatureInitializer.h"
 #include "track/TrackAruco.h"
 #include "track/TrackDescriptor.h"
+#include "track/TrackSPSG.h"
 #include "track/TrackKLT.h"
 #include "track/TrackSIM.h"
 #include "types/Landmark.h"
@@ -134,9 +135,20 @@ VioManager::VioManager(VioManagerOptions &params_) : thread_init_running(false),
                                                          state->_options.max_aruco_features, params.use_stereo, params.histogram_method,
                                                          params.fast_threshold, params.grid_x, params.grid_y, params.min_px_dist));
   } else {
-    trackFEATS = std::shared_ptr<TrackBase>(new TrackDescriptor(
+    if(params.use_superglue)
+    {
+      trackFEATS = std::shared_ptr<TrackBase>(new TrackSPSG(
+        state->_cam_intrinsics_cameras, init_max_features,
+        state->_options.max_aruco_features, params.use_stereo, params.histogram_method,
+        params.superpoint_superglue_weight_dir, params.superpoint_superglue_config_path, params.superglue_type));
+    }
+    else
+    {
+      trackFEATS = std::shared_ptr<TrackBase>(new TrackDescriptor(
         state->_cam_intrinsics_cameras, init_max_features, state->_options.max_aruco_features, params.use_stereo, params.histogram_method,
         params.fast_threshold, params.grid_x, params.grid_y, params.min_px_dist, params.knn_ratio));
+    }
+    
   }
 
   // Initialize our aruco tag extractor
