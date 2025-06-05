@@ -16,13 +16,13 @@ calib_imu_g_sensitivity: false # if gyroscope gravity sensitivity (Tg) should be
 
 max_clones: 11 # how many clones in the sliding window
 max_slam: 50 # number of features in our state vector
-max_slam_in_update: 25 # update can be split into sequential updates of batches, how many in a batch
-max_msckf_in_update: 40 # how many MSCKF features to use in the update
+max_slam_in_update: 30 # update can be split into sequential updates of batches, how many in a batch
+max_msckf_in_update: 30 # how many MSCKF features to use in the update
 dt_slam_delay: 1 # delay before initializing (helps with stability from bad initialization...)
 
 gravity_mag: 9.81 # magnitude of gravity in this location
 
-feat_rep_msckf: "ANCHORED_MSCKF_INVERSE_DEPTH"
+feat_rep_msckf: "GLOBAL_3D"
 feat_rep_slam: "ANCHORED_MSCKF_INVERSE_DEPTH"
 feat_rep_aruco: "ANCHORED_MSCKF_INVERSE_DEPTH"
 
@@ -79,13 +79,14 @@ filepath_gt: "/tmp/ov_groundtruth.txt"
 # our front-end feature tracking parameters
 # we have a KLT and descriptor based (KLT is better implemented...)
 use_klt: true # if true we will use KLT, otherwise use a ORB descriptor + robust matching
+use_superglue: false # if true we will use superpoint and superglue. false will use ORB matching
 num_pts: 200 # number of points (per camera) we will extract and try to track
 fast_threshold: 20 # threshold for fast extraction (warning: lower threshs can be expensive)
 grid_x: 10 # extraction sub-grid count for horizontal direction (uniform tracking)
 grid_y: 10 # extraction sub-grid count for vertical direction (uniform tracking)
 min_px_dist: 20 # distance between features (features near each other provide less information)
 knn_ratio: 0.70 # descriptor knn threshold for the top two descriptor matches
-track_frequency: 20.0 # frequency we will perform feature tracking at (in frames per second / hertz)
+track_frequency: 21.0 # frequency we will perform feature tracking at (in frames per second / hertz)
 downsample_cameras: true # will downsample image in half if true
 num_opencv_threads: 4 # -1: auto, 0-1: serial, >1: number of threads
 histogram_method: "NONE" # NONE, HISTOGRAM, CLAHE
@@ -101,9 +102,9 @@ downsize_aruco: true
 
 # camera noises and chi-squared threshold multipliers
 up_msckf_sigma_px: 1
-up_msckf_chi2_multipler: 1
+up_msckf_chi2_multipler: 5
 up_slam_sigma_px: 1
-up_slam_chi2_multipler: 1
+up_slam_chi2_multipler: 5
 up_aruco_sigma_px: 1
 up_aruco_chi2_multipler: 1
 
@@ -118,3 +119,8 @@ mask3: mask3.png
 # imu config should also have the correct noise values
 relative_config_imu: "kalibr_imu_chain.yaml"
 relative_config_imucam: "kalibr_imucam_chain.yaml"
+
+# superpoint and superglue related config. useless in this config but make the program run
+superpoint_superglue_weight_dir: "/home/guo/openvins_ws/src/open_vins/ov_core/weight"
+superglue_type: "outdoor"
+superpoint_superglue_config: "/home/guo/openvins_ws/src/open_vins/config/mynteye/config.yaml"

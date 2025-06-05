@@ -12,7 +12,7 @@
     <arg name="bag_rate"    default="1.0" />
     <arg name="dataset"     default="V1_01_easy" /> <!-- V1_01_easy, V1_02_medium, V2_02_medium -->
     <arg name="dobag"       default="true" /> <!-- if we should play back the bag -->
-    <arg name="bag"         default="/home/guo/dataset/seeker/meeting.bag" />
+    <arg name="bag"         default="/media/guo/fs/seeker/record_0.bag" />
 <!--    <arg name="bag"         default="/home/patrick/datasets/$(arg config)/$(arg dataset).bag" />-->
 <!--    <arg name="bag"         default="/datasets/$(arg config)/$(arg dataset).bag" />-->
 
