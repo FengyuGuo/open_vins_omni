@@ -27,6 +27,9 @@
     <depend condition="$ROS_VERSION == 1">rosbag</depend>
     <depend condition="$ROS_VERSION == 1">sensor_msgs</depend>
     <depend condition="$ROS_VERSION == 1">cv_bridge</depend>
+    <depend condition="$ROS_VERSION == 1">image_transport</depend>
+    <depend condition="$ROS_VERSION == 1">tf</depend>
+    <depend condition="$ROS_VERSION == 1">tf2</depend>
 
     <!-- ROS2: Dependencies needed to compile this package. -->
     <buildtool_depend condition="$ROS_VERSION == 2">ament_cmake</buildtool_depend>

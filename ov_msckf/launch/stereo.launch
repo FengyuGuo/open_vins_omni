@@ -1,0 +1,18 @@
+<launch>
+  <group ns="/undistort/virt_front">
+    <node pkg="stereo_image_proc" type="stereo_image_proc" name="stereo_image_proc" output="screen">
+    </node>
+  </group>
+    <group ns="/undistort/virt_right">
+    <node pkg="stereo_image_proc" type="stereo_image_proc" name="stereo_image_proc" output="screen">
+    </node>
+  </group>
+    <group ns="/undistort/virt_back">
+    <node pkg="stereo_image_proc" type="stereo_image_proc" name="stereo_image_proc" output="screen">
+    </node>
+  </group>
+  <group ns="/undistort/virt_left">
+    <node pkg="stereo_image_proc" type="stereo_image_proc" name="stereo_image_proc" output="screen">
+    </node>
+  </group>
+</launch>

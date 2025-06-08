@@ -371,6 +371,7 @@ void ROS1Visualizer::visualize_odometry(double timestamp) {
   trans.frame_id_ = "global";
   trans.child_frame_id_ = "imu";
   trans.stamp_.fromSec(timestamp);
+  // PRINT_DEBUG("publish camera extrins calib at %f\n", timestamp);
   if (publish_global2imu_tf) {
     mTfBr->sendTransform(trans);
   }
@@ -385,30 +386,6 @@ void ROS1Visualizer::visualize_odometry(double timestamp) {
       mTfBr->sendTransform(trans_calib);
     }
   }
-
-  tf::StampedTransform trans_front = ROSVisualizerHelper::get_pointcloud_tf("front");
-  trans_front.frame_id_ = "imu";
-  trans_front.child_frame_id_ = "depth0";
-  trans_front.stamp_.fromSec(timestamp);
-  tf::StampedTransform trans_right = ROSVisualizerHelper::get_pointcloud_tf("right");
-  trans_right.frame_id_ = "imu";
-  trans_right.child_frame_id_ = "depth1";
-  trans_right.stamp_.fromSec(timestamp);
-  tf::StampedTransform trans_back = ROSVisualizerHelper::get_pointcloud_tf("back");
-  trans_back.frame_id_ = "imu";
-  trans_back.child_frame_id_ = "depth2";
-  trans_back.stamp_.fromSec(timestamp);
-  tf::StampedTransform trans_left = ROSVisualizerHelper::get_pointcloud_tf("left");
-  trans_left.frame_id_ = "imu";
-  trans_left.child_frame_id_ = "depth3";
-  trans_left.stamp_.fromSec(timestamp);
-  if (publish_global2imu_tf) {
-    mTfBr->sendTransform(trans_front);
-    mTfBr->sendTransform(trans_right);
-    mTfBr->sendTransform(trans_back);
-    mTfBr->sendTransform(trans_left);
-  }
-
 
 }
 

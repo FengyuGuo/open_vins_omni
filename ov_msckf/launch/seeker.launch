@@ -6,7 +6,7 @@
     <arg name="config_path" default="$(find ov_msckf)/../config/$(arg config)/estimator_config.yaml" />
 
     <!-- mono or stereo and what ros bag to play -->
-    <arg name="max_cameras" default="4" />
+    <arg name="max_cameras" default="1" />
     <arg name="use_stereo"  default="false" />
     <arg name="bag_start"   default="0" /> <!-- v1-2: 0, mh1: 40, mh2: 35, mh3: 17.5, mh4-5: 15 -->
     <arg name="bag_rate"    default="1.0" />
@@ -72,6 +72,10 @@
         <node name="repub4" pkg="image_transport" type="republish" output="screen" args="compressed in:=/fisheye/bleft/image_raw raw out:=/fisheye/bleft/image_raw">
         <!-- <remap from="in" to="/fisheye/left/image_raw" />
         <remap from="out" to="/fisheye/left/image_raw" /> -->
+        </node>
+
+        <node name="undistort" pkg="ov_core" type="seeker_stereo" output="screen">
+            <param name="config_path" type="string" value="$(find ov_msckf)/../config/$(arg config)/estimator_config.yaml"/>
         </node>
 
     </group>

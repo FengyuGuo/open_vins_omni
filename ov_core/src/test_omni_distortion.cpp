@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
   parser->parse_external("relative_config_imucam", "cam" + std::to_string(1), "rostopic", topic_camera1);
   // Location of the ROS bag we want to read in
   std::string path_to_bag;
-  nh->param<std::string>("path_bag", path_to_bag, "/home/guo/dataset/seeker/office.bag");
+  nh->param<std::string>("path_bag", path_to_bag, "/home/guo/dataset/seeker/meeting.bag");
   // nh->param<std::string>("path_bag", path_to_bag, "/home/patrick/datasets/rpng_aruco/aruco_room_01.bag");
   PRINT_INFO("ros bag path is: %s\n", path_to_bag.c_str());
 

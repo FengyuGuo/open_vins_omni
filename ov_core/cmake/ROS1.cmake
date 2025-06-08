@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.3)
 
 # Find ROS build system
-find_package(catkin QUIET COMPONENTS roscpp rosbag sensor_msgs cv_bridge)
+find_package(catkin QUIET COMPONENTS roscpp rosbag sensor_msgs cv_bridge image_transport tf tf2)
 
 set(CMAKE_CXX_STANDARD 14)
 # set(CMAKE_BUILD_TYPE "debug")
@@ -24,7 +24,7 @@ option(ENABLE_ROS "Enable or disable building with ROS (if it is found)" ON)
 if (catkin_FOUND AND ENABLE_ROS)
     add_definitions(-DROS_AVAILABLE=1)
     catkin_package(
-            CATKIN_DEPENDS roscpp rosbag sensor_msgs cv_bridge
+            CATKIN_DEPENDS roscpp rosbag sensor_msgs cv_bridge image_transport tf tf2
             INCLUDE_DIRS src/
             LIBRARIES ov_core_lib
     )
@@ -120,6 +120,14 @@ if (catkin_FOUND AND ENABLE_ROS)
             RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
     )
 
+
+    add_executable(seeker_stereo src/seeker_stereo.cpp)
+    target_link_libraries(seeker_stereo ov_core_lib ${thirdparty_libraries})
+    install(TARGETS seeker_stereo
+        ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+    )
 endif ()
 
 add_executable(test_webcam src/test_webcam.cpp)
@@ -140,4 +148,3 @@ install(TARGETS test_profile
 
 add_executable(test_omni src/test_omni.cpp)
 target_link_libraries(test_omni ov_core_lib ${thirdparty_libraries})
-
