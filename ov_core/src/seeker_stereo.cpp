@@ -233,20 +233,20 @@ int main(int argc, char** argv)
   sensor_msgs::CameraInfo left_cam_info;
 
   left_cam_info.distortion_model = "plumb_bob";
-  left_cam_info.width = 640;
-  left_cam_info.height = 480;
+  left_cam_info.width = VIRT_CAM_WIDTH;
+  left_cam_info.height = VIRT_CAM_HEIGHT;
   left_cam_info.R[0] = 1;
   left_cam_info.R[4] = 1;
   left_cam_info.R[8] = 1;
-  left_cam_info.K[0] = 320;
-  left_cam_info.K[2] = 320;
-  left_cam_info.K[4] = 320;
-  left_cam_info.K[5] = 240;
+  left_cam_info.K[0] = VIRT_CAM_WIDTH / 2;
+  left_cam_info.K[2] = VIRT_CAM_F;
+  left_cam_info.K[4] = VIRT_CAM_F;
+  left_cam_info.K[5] = VIRT_CAM_HEIGHT / 2;
   left_cam_info.K[8] = 1;
-  left_cam_info.P[0] = 320;
-  left_cam_info.P[2] = 320;
-  left_cam_info.P[5] = 320;
-  left_cam_info.P[6] = 240;
+  left_cam_info.P[0] = VIRT_CAM_WIDTH / 2;
+  left_cam_info.P[2] = VIRT_CAM_F;
+  left_cam_info.P[5] = VIRT_CAM_F;
+  left_cam_info.P[6] = VIRT_CAM_HEIGHT / 2;
   left_cam_info.P[10] = 1;
   left_cam_info.D = std::vector<double>(5, 0.0);
 
