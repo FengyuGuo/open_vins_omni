@@ -522,10 +522,11 @@ struct VioManagerOptions {
       }
       parser->parse_config("knn_ratio", knn_ratio);
       parser->parse_config("track_frequency", track_frequency);
-
+#ifdef ENABLE_SUPERPOINT
       parser->parse_config("superpoint_superglue_weight_dir", superpoint_superglue_weight_dir);
       parser->parse_config("superpoint_superglue_config", superpoint_superglue_config_path);
       parser->parse_config("superglue_type", superglue_type);
+#endif
     }
     PRINT_DEBUG("FEATURE TRACKING PARAMETERS:\n");
     PRINT_DEBUG("  - use_stereo: %d\n", use_stereo);
@@ -543,10 +544,11 @@ struct VioManagerOptions {
     PRINT_DEBUG("  - hist method: %d\n", (int)histogram_method);
     PRINT_DEBUG("  - knn ratio: %.3f\n", knn_ratio);
     PRINT_DEBUG("  - track frequency: %.1f\n", track_frequency);
-
+#ifdef ENABLE_SUPERPOINT
     PRINT_DEBUG("  - superpoint superglue weight dir: %s\n", superpoint_superglue_weight_dir.c_str());
     PRINT_DEBUG("  - superglue type: %s\n", superglue_type.c_str());
     PRINT_DEBUG("  - superpoint superglue config: %s\n", superpoint_superglue_config_path.c_str());
+#endif
     featinit_options.print(parser);
   }
 

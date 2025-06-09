@@ -128,7 +128,10 @@ struct StateOptions {
       parser->parse_config("max_msckf_in_update", max_msckf_in_update);
       parser->parse_config("num_aruco", max_aruco_features);
       parser->parse_config("max_cameras", num_cameras);
-      parser->parse_config("camera_synced", camera_synced);
+      if(num_cameras > 2)
+      {
+        parser->parse_config("camera_synced", camera_synced); // take effect when more than 2 cameras
+      }
 
       // Feature representations
       std::string rep1 = ov_type::LandmarkRepresentation::as_string(feat_rep_msckf);
