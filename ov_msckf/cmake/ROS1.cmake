@@ -1,10 +1,18 @@
 cmake_minimum_required(VERSION 3.3)
 
-set(TRT_INCLUDE_DIR /opt/tensorrt8/include)
+
 
 # Find ROS build system
 find_package(catkin QUIET COMPONENTS roscpp rosbag tf std_msgs geometry_msgs sensor_msgs nav_msgs visualization_msgs image_transport cv_bridge ov_core ov_init)
-find_package(CUDA REQUIRED)
+
+option(ENABLE_SUPERPOINT "enable superpoint and superglue feature tracking" ON)
+
+if(ENABLE_SUPERPOINT)
+    find_package(CUDA REQUIRED)
+    set(TRT_INCLUDE_DIR /opt/tensorrt8/include)
+    add_definitions(-DENABLE_SUPERPOINT)
+endif()
+
 # Describe ROS project
 option(ENABLE_ROS "Enable or disable building with ROS (if it is found)" ON)
 if (catkin_FOUND AND ENABLE_ROS)
@@ -31,9 +39,14 @@ include_directories(
         ${Boost_INCLUDE_DIRS}
         ${CERES_INCLUDE_DIRS}
         ${catkin_INCLUDE_DIRS}
-        ${CUDA_INCLUDE_DIRS}
-        ${TRT_INCLUDE_DIR}
 )
+
+if(ENABLE_SUPERPOINT)
+    include_directories(
+            ${CUDA_INCLUDE_DIRS}
+            ${TRT_INCLUDE_DIR}
+    )
+endif()
 
 # Set link libraries used by all binaries
 list(APPEND thirdparty_libraries

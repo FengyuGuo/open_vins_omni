@@ -491,7 +491,9 @@ struct VioManagerOptions {
     if (parser != nullptr) {
       parser->parse_config("use_stereo", use_stereo);
       parser->parse_config("use_klt", use_klt);
+#ifdef ENABLE_SUPERPOINT
       parser->parse_config("use_superglue", use_superglue);
+#endif
       parser->parse_config("use_aruco", use_aruco);
       parser->parse_config("downsize_aruco", downsize_aruco);
       parser->parse_config("downsample_cameras", downsample_cameras);

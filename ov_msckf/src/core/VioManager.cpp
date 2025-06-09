@@ -26,7 +26,9 @@
 #include "feat/FeatureInitializer.h"
 #include "track/TrackAruco.h"
 #include "track/TrackDescriptor.h"
+#ifdef ENABLE_SUPERPOINT
 #include "track/TrackSPSG.h"
+#endif
 #include "track/TrackKLT.h"
 #include "track/TrackSIM.h"
 #include "types/Landmark.h"
@@ -137,10 +139,15 @@ VioManager::VioManager(VioManagerOptions &params_) : thread_init_running(false),
   } else {
     if(params.use_superglue)
     {
+#if ENABLE_SUPERPOINT
       trackFEATS = std::shared_ptr<TrackBase>(new TrackSPSG(
         state->_cam_intrinsics_cameras, init_max_features,
         state->_options.max_aruco_features, params.use_stereo, params.histogram_method,
         params.superpoint_superglue_weight_dir, params.superpoint_superglue_config_path, params.superglue_type));
+#else
+      PRINT_ERROR("please enable superpoint in cmake!!\n");
+      exit(1);
+#endif
     }
     else
     {

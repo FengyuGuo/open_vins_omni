@@ -4,15 +4,16 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /TF1
-        - /MSCKF Points1
-        - /Stereo1
+        - /Stereo1/PointCloud21
         - /Stereo1/PointCloud21/Autocompute Value Bounds1
+        - /Stereo1/PointCloud22
         - /Stereo1/PointCloud22/Autocompute Value Bounds1
+        - /Stereo1/PointCloud23
         - /Stereo1/PointCloud23/Autocompute Value Bounds1
+        - /Stereo1/PointCloud24
         - /Stereo1/PointCloud24/Autocompute Value Bounds1
       Splitter Ratio: 0.4310559034347534
-    Tree Height: 482
+    Tree Height: 389
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -31,7 +32,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: Image Tracks
+    SyncSource: ""
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -64,50 +65,13 @@ Visualization Manager:
       Frame Timeout: 1200
       Frames:
         All Enabled: true
-        cam0:
-          Value: true
-        cam1:
-          Value: true
-        cam2:
-          Value: true
-        cam3:
-          Value: true
-        depth0:
-          Value: true
-        depth1:
-          Value: true
-        depth2:
-          Value: true
-        depth3:
-          Value: true
-        global:
-          Value: true
-        imu:
-          Value: true
-      Marker Scale: 0.20000000298023224
+      Marker Scale: 1
       Name: TF
       Show Arrows: false
       Show Axes: true
       Show Names: true
       Tree:
-        global:
-          imu:
-            cam0:
-              {}
-            cam1:
-              {}
-            cam2:
-              {}
-            cam3:
-              {}
-            depth0:
-              {}
-            depth1:
-              {}
-            depth2:
-              {}
-            depth3:
-              {}
+        {}
       Update Interval: 0
       Value: true
     - Class: rviz/Image
@@ -332,7 +296,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 255; 255
-          Color Transformer: AxisColor
+          Color Transformer: RGB8
           Decay Time: 0
           Enabled: true
           Invert Rainbow: false
@@ -345,7 +309,7 @@ Visualization Manager:
           Size (Pixels): 1
           Size (m): 0.009999999776482582
           Style: Points
-          Topic: /back_pointcloud
+          Topic: /undistort/virt_front/points2
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
@@ -360,7 +324,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 255; 255
-          Color Transformer: AxisColor
+          Color Transformer: RGB8
           Decay Time: 0
           Enabled: true
           Invert Rainbow: false
@@ -373,7 +337,7 @@ Visualization Manager:
           Size (Pixels): 1
           Size (m): 0.009999999776482582
           Style: Points
-          Topic: /left_pointcloud
+          Topic: /undistort/virt_right/points2
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
@@ -388,7 +352,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 255; 255
-          Color Transformer: AxisColor
+          Color Transformer: RGB8
           Decay Time: 0
           Enabled: true
           Invert Rainbow: false
@@ -401,7 +365,7 @@ Visualization Manager:
           Size (Pixels): 1
           Size (m): 0.009999999776482582
           Style: Points
-          Topic: /right_pointcloud
+          Topic: /undistort/virt_back/points2
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
@@ -416,7 +380,7 @@ Visualization Manager:
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 255; 255
-          Color Transformer: AxisColor
+          Color Transformer: RGB8
           Decay Time: 0
           Enabled: true
           Invert Rainbow: false
@@ -429,7 +393,7 @@ Visualization Manager:
           Size (Pixels): 1
           Size (m): 0.009999999776482582
           Style: Points
-          Topic: /front_pointcloud
+          Topic: /undistort/virt_left/points2
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
@@ -464,37 +428,37 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 44.195655822753906
+      Distance: 27.8865966796875
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.41065359115600586
-        Y: 0.14838796854019165
-        Z: -0.17824208736419678
+        X: 0.7437751889228821
+        Y: -0.28433603048324585
+        Z: -0.462554395198822
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5797988772392273
+      Pitch: 0.9947969913482666
       Target Frame: imu
       Value: Orbit (rviz)
-      Yaw: 3.824145793914795
+      Yaw: 1.0459861755371094
     Saved: ~
 Window Geometry:
   Current Depths:
     collapsed: false
   Displays:
     collapsed: false
-  Height: 1025
+  Height: 759
   Hide Left Dock: false
   Hide Right Dock: true
   Image Tracks:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000400000000000001a50000021ffc020000000dfb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003d0000021f000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000001a0054007200610063006b00200048006900730074006f0072007901000003d0000000160000000000000000fb0000000a0049006d00610067006500000001170000011c0000000000000000fb0000001c00430075007200720065006e0074002000440065007000740068007300000001c9000000b80000001600fffffffb0000000a0049006d0061006700650000000239000000480000000000000000fb000000140054007200610063006b0020004c0069006e006501000003ec000000160000000000000000000000010000010f00000274fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003d00000274000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b20000000000000000000000020000073f00000295fc0100000005fb0000000800430041004d003000000000000000020c0000000000000000fb0000000800430041004d00310000000000000002ef0000000000000000fb0000000800430041004d00320000000000000003850000000000000000fb0000000800430041004d003300000000000000073f0000000000000000fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000056d00000182fc0100000003fb000000180049006d00610067006500200054007200610063006b007301000000000000056d0000008d00fffffffb0000000800540069006d0065000000000000000570000004f300fffffffb0000000800540069006d00650100000000000004500000000000000000000003c20000021f00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000400000000000001a5000001c2fc020000000dfb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003d000001c2000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000001a0054007200610063006b00200048006900730074006f0072007901000003d0000000160000000000000000fb0000000a0049006d00610067006500000001170000011c0000000000000000fb0000001c00430075007200720065006e0074002000440065007000740068007300000001c9000000b80000001600fffffffb0000000a0049006d0061006700650000000239000000480000000000000000fb000000140054007200610063006b0020004c0069006e006501000003ec000000160000000000000000000000010000010f00000274fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003d00000274000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b20000000000000000000000020000073f00000295fc0100000005fb0000000800430041004d003000000000000000020c0000000000000000fb0000000800430041004d00310000000000000002ef0000000000000000fb0000000800430041004d00320000000000000003850000000000000000fb0000000800430041004d003300000000000000073f0000000000000000fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000056d000000d5fc0100000003fb000000180049006d00610067006500200054007200610063006b007301000000000000056d0000008d00fffffffb0000000800540069006d0065000000000000000570000004f300fffffffb0000000800540069006d00650100000000000004500000000000000000000003c2000001c200000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
@@ -504,5 +468,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1389
-  X: 2368
-  Y: 286
+  X: 2280
+  Y: 399

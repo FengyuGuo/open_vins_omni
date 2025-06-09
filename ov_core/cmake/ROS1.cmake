@@ -3,21 +3,27 @@ cmake_minimum_required(VERSION 3.3)
 # Find ROS build system
 find_package(catkin QUIET COMPONENTS roscpp rosbag sensor_msgs cv_bridge image_transport tf tf2)
 
-set(CMAKE_CXX_STANDARD 14)
-# set(CMAKE_BUILD_TYPE "debug")
-add_definitions(-w)
-add_definitions(-g)
+option(ENABLE_SUPERPOINT "enable superpoint and superglue feature tracking" ON)
 
-set(TRT_INCLUDE_DIR /opt/tensorrt8/include)
-set(TRT_LIB_DIR /opt/tensorrt8/lib)
-file(GLOB TRT_LIBS ${TRT_LIB_DIR}/*.so)
-set(CUDNN_LIB_DIR /opt/cudnn8/lib)
-file(GLOB CUDNN_LIBS ${CUDNN_LIB_DIR}/*)
+if(ENABLE_SUPERPOINT)
+    set(CMAKE_CXX_STANDARD 14)
+    # set(CMAKE_BUILD_TYPE "debug")
+    add_definitions(-w)
+    add_definitions(-g)
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/3rdparty/tensorrtbuffer)
+    set(TRT_INCLUDE_DIR /opt/tensorrt8/include)
+    set(TRT_LIB_DIR /opt/tensorrt8/lib)
+    file(GLOB TRT_LIBS ${TRT_LIB_DIR}/*.so)
+    set(CUDNN_LIB_DIR /opt/cudnn8/lib)
+    file(GLOB CUDNN_LIBS ${CUDNN_LIB_DIR}/*)
 
-find_package(CUDA REQUIRED)
-find_package(yaml-cpp REQUIRED)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/3rdparty/tensorrtbuffer)
+
+    find_package(CUDA REQUIRED)
+    find_package(yaml-cpp REQUIRED)
+
+    add_definitions(-DENABLE_SUPERPOINT)
+endif()
 
 # Describe ROS project
 option(ENABLE_ROS "Enable or disable building with ROS (if it is found)" ON)
@@ -47,19 +53,31 @@ include_directories(
         ${YAML_CPP_INCLUDE_DIR}
         ${TRT_INCLUDE_DIR}
 )
+if(ENABLE_SUPERPOINT)
+    include_directories(
+            ${CUDA_INCLUDE_DIRS}
+            ${YAML_CPP_INCLUDE_DIR}
+            ${TRT_INCLUDE_DIR}
+    )
+endif()
 message(STATUS ${TRT_INCLUDE_DIR})
 # Set link libraries used by all binaries
 list(APPEND thirdparty_libraries
         ${Boost_LIBRARIES}
         ${OpenCV_LIBRARIES}
         ${catkin_LIBRARIES}
-        ${CUDA_LIBRARIES}
-        yaml-cpp
-        tensorrtbuffer
-        ${TRT_LIBS}
-        ${CUDNN_LIBS}
-        glog
 )
+
+if(ENABLE_SUPERPOINT)
+    list(APPEND thirdparty_libraries
+            ${CUDA_LIBRARIES}
+            yaml-cpp
+            tensorrtbuffer
+            ${TRT_LIBS}
+            ${CUDNN_LIBS}
+            glog
+    )
+endif()
 
 ##################################################
 # Make the core library
@@ -75,15 +93,19 @@ list(APPEND LIBRARY_SOURCES
         src/track/TrackDescriptor.cpp
         src/track/TrackKLT.cpp
         src/track/TrackSIM.cpp
-        src/track/super_point.cpp
-        src/track/super_glue.cpp
-        src/track/TrackSPSG.cpp
         src/types/Landmark.cpp
         src/feat/Feature.cpp
         src/feat/FeatureDatabase.cpp
         src/feat/FeatureInitializer.cpp
         src/utils/print.cpp
 )
+if(ENABLE_SUPERPOINT)
+    list(APPEND LIBRARY_SOURCES
+            src/track/super_point.cpp
+            src/track/super_glue.cpp
+            src/track/TrackSPSG.cpp
+    )
+endif()
 file(GLOB_RECURSE LIBRARY_HEADERS "src/*.h")
 add_library(ov_core_lib SHARED ${LIBRARY_SOURCES} ${LIBRARY_HEADERS})
 target_link_libraries(ov_core_lib ${thirdparty_libraries})

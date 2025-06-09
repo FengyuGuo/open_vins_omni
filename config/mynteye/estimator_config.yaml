@@ -9,7 +9,7 @@ max_cameras: 2 # how many cameras we have 1 = mono, 2 = stereo, >2 = binocular (
 camera_synced: true # effected when max_cameras > 2
 
 calib_cam_extrinsics: true # if the transform between camera and IMU should be optimized R_ItoC, p_CinI
-calib_cam_intrinsics: true # if camera intrinsics should be optimized (focal, center, distortion)
+calib_cam_intrinsics: false # if camera intrinsics should be optimized (focal, center, distortion)
 calib_cam_timeoffset: true # if timeoffset between camera and IMU should be optimized
 calib_imu_intrinsics: false # if imu intrinsics should be calibrated (rotation and skew-scale matrix)
 calib_imu_g_sensitivity: false # if gyroscope gravity sensitivity (Tg) should be calibrated
@@ -78,8 +78,8 @@ filepath_gt: "/tmp/ov_groundtruth.txt"
 
 # our front-end feature tracking parameters
 # we have a KLT and descriptor based (KLT is better implemented...)
-use_klt: false # if true we will use KLT, otherwise use a ORB descriptor + robust matching
-use_superglue: true # if true we will use superpoint and superglue. false will use ORB matching
+use_klt: true # if true we will use KLT, otherwise use a ORB descriptor + robust matching
+use_superglue: false # if true we will use superpoint and superglue. false will use ORB matching
 num_pts: 200 # number of points (per camera) we will extract and try to track
 fast_threshold: 20 # threshold for fast extraction (warning: lower threshs can be expensive)
 grid_x: 10 # extraction sub-grid count for horizontal direction (uniform tracking)
