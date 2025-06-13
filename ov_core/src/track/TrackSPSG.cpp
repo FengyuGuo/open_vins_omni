@@ -472,6 +472,11 @@ void TrackSPSG::perform_matching(std::vector<cv::KeyPoint> &pts0, std::vector<cv
 {
   std::vector<cv::DMatch> raw_match;
   superglue->matching_points(feat0, feat1, raw_match);
+  if(raw_match.empty())
+  {
+    matches = raw_match;
+    return;
+  }
   //TODO: filer out outlier with ransac
   std::vector<cv::Point2f> pts_n_0, pts_n_1;
   for(int i = 0; i < raw_match.size(); i++)

@@ -12,6 +12,11 @@ Panels:
         - /stereo_cam1/right1/Autocompute Value Bounds1
         - /stereo_cam1/back1/Autocompute Value Bounds1
         - /stereo_cam1/left1/Autocompute Value Bounds1
+        - /Odometry1
+        - /Odometry1/Shape1
+        - /Odometry1/Covariance1
+        - /Odometry1/Covariance1/Position1
+        - /Odometry1/Covariance1/Orientation1
       Splitter Ratio: 0.4310559034347534
     Tree Height: 428
   - Class: rviz/Selection
@@ -67,12 +72,6 @@ Visualization Manager:
         All Enabled: true
         cam0:
           Value: true
-        cam1:
-          Value: true
-        cam2:
-          Value: true
-        cam3:
-          Value: true
         depth0:
           Value: true
         depth1:
@@ -94,12 +93,6 @@ Visualization Manager:
         global:
           imu:
             cam0:
-              {}
-            cam1:
-              {}
-            cam2:
-              {}
-            cam3:
               {}
             depth0:
               {}
@@ -553,6 +546,40 @@ Visualization Manager:
           Value: true
       Enabled: true
       Name: stereo_cam
+    - Angle Tolerance: 0.10000000149011612
+      Class: rviz/Odometry
+      Covariance:
+        Orientation:
+          Alpha: 0.5
+          Color: 255; 255; 127
+          Color Style: Unique
+          Frame: Local
+          Offset: 1
+          Scale: 1
+          Value: true
+        Position:
+          Alpha: 0.30000001192092896
+          Color: 204; 51; 204
+          Scale: 1
+          Value: true
+        Value: true
+      Enabled: true
+      Keep: 10
+      Name: Odometry
+      Position Tolerance: 0.10000000149011612
+      Shape:
+        Alpha: 1
+        Axes Length: 0.10000000149011612
+        Axes Radius: 0.05000000074505806
+        Color: 255; 25; 0
+        Head Length: 0.30000001192092896
+        Head Radius: 0.10000000149011612
+        Shaft Length: 1
+        Shaft Radius: 0.05000000074505806
+        Value: Axes
+      Topic: /ov_msckf/odomimu
+      Unreliable: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 44; 44; 44
@@ -581,25 +608,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 4.017056941986084
+      Distance: 33.03113555908203
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.20578353106975555
-        Y: 0.03186129033565521
-        Z: -0.1348743587732315
+        X: -9.6309175491333
+        Y: -1.0461992025375366
+        Z: -1.787997841835022
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.2247961014509201
+      Pitch: 0.08979636430740356
       Target Frame: imu
       Value: Orbit (rviz)
-      Yaw: 5.929123878479004
+      Yaw: 1.2659437656402588
     Saved: ~
 Window Geometry:
   Current Depths:

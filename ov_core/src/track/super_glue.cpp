@@ -542,6 +542,11 @@ bool SuperGlue::deserialize_engine() {
 int SuperGlue::matching_points(Eigen::Matrix<double, 259, Eigen::Dynamic>& features0,
                                   Eigen::Matrix<double, 259, Eigen::Dynamic>& features1, std::vector<cv::DMatch>& matches, bool outlier_rejection){
   matches.clear();
+  if(features0.cols() == 0 || features1.cols() == 0)
+  {
+    return 0;
+  }
+  
   Eigen::Matrix<double, 259, Eigen::Dynamic> norm_features0 = normalize_keypoints(features0, superglue_config_.image_width, superglue_config_.image_height);
   Eigen::Matrix<double, 259, Eigen::Dynamic> norm_features1 = normalize_keypoints(features1, superglue_config_.image_width, superglue_config_.image_height);
   Eigen::VectorXi indices0, indices1;

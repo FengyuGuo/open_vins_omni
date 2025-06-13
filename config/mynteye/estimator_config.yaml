@@ -119,6 +119,6 @@ relative_config_imucam: "kalibr_imucam_chain.yaml"
 # superpoint and superglue related config
 superpoint_superglue_weight_dir: "/home/guo/openvins_ws/src/open_vins/ov_core/weight"
 superglue_type: "outdoor"
-superpoint_superglue_config: "/home/guo/openvins_ws/src/open_vins/config/mynteye/config.yaml"
+superpoint_superglue_config: "/home/guo/openvins_ws/src/open_vins/config/mynteye/spsg_config.yaml"
 
 
