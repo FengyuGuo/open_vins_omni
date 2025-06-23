@@ -12,3 +12,4 @@ doc
 **.so
 **.onnx
 **.engine
+*ipynb_checkpoints

@@ -209,7 +209,6 @@ int main(int argc, char **argv) {
   }
 
   cv::Mat distort_viz(cv::Size(cam_ptr->w(), cam_ptr->h()), CV_8UC3, cv::Scalar(0, 0, 0));
-  cv::Mat distort_viz_old(cv::Size(cam_ptr->w(), cam_ptr->h()), CV_8UC3, cv::Scalar(0, 0, 0));
   std::vector<cv::Point> undistort_pts, distort_pts;
   for(int u = 0; u < IMG_WIDTH; u += 30)
   {
@@ -220,12 +219,9 @@ int main(int argc, char **argv) {
       uv_norm.x() = (u - cx) / f;
       uv_norm.y() = (v - cy) / f;
       Eigen::Vector2f uv_distort = cam_ptr->distort_f(uv_norm);
-      Eigen::Vector2f uv_distort_old = cam_ptr->distort_f_old(uv_norm);
       std::cout << "distort from " << uv_norm.transpose() << " to " << uv_distort.transpose() << "\n";
-      std::cout << "old distort from " << uv_norm.transpose() << " to " << uv_distort_old.transpose() << "\n";
       // distort_pts.emplace_back(uv_distort.x(), uv_distort.y());
       cv::circle(distort_viz, cv::Point(uv_distort.x(), uv_distort.y()), 2, cv::Scalar(0, 0, 255), 1);
-      cv::circle(distort_viz_old, cv::Point(uv_distort_old.x(), uv_distort_old.y()), 2, cv::Scalar(255, 0, 255), 1);
     }
   }
   cv::imshow("distort", distort_viz);
