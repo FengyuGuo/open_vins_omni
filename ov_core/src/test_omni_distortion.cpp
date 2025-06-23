@@ -171,7 +171,7 @@ int main(int argc, char **argv) {
   // Fake camera info (we don't need this, as we are not using the normalized coordinates for anything)
   std::unordered_map<size_t, std::shared_ptr<CamBase>> cameras;
   for (int i = 0; i < 1; i++) {
-    std::shared_ptr<CamOmni> cam_ptr(new CamOmni(IMG_WIDTH, IMG_HEIGHT));
+    std::shared_ptr<CamOmni> cam_ptr(new CamOmni(1088, 1280));
     Eigen::MatrixXd cam_calib(8, 1);
     cam_calib << 1661.0508677925284, 1661.1166401802136, 524.1186764831461,  630.1494276574698, 
       -0.06727585259390413, 0.5842755541669968, 0.0017763603612335093, -0.0010270945769683538;
@@ -184,7 +184,7 @@ int main(int argc, char **argv) {
   }
 
   //init the remap
-  Eigen::AngleAxisf aa(M_PI_4, Eigen::Vector3f::UnitY());
+  Eigen::AngleAxisf aa(0, Eigen::Vector3f::UnitY());
   Eigen::Matrix3f rot = aa.toRotationMatrix();
   std::cout << rot << std::endl;
   cv::Mat mapx(cv::Size(IMG_WIDTH, IMG_HEIGHT), CV_32FC1), mapy(cv::Size(IMG_WIDTH, IMG_HEIGHT), CV_32FC1);
@@ -208,6 +208,29 @@ int main(int argc, char **argv) {
     }
   }
 
+  cv::Mat distort_viz(cv::Size(cam_ptr->w(), cam_ptr->h()), CV_8UC3, cv::Scalar(0, 0, 0));
+  cv::Mat distort_viz_old(cv::Size(cam_ptr->w(), cam_ptr->h()), CV_8UC3, cv::Scalar(0, 0, 0));
+  std::vector<cv::Point> undistort_pts, distort_pts;
+  for(int u = 0; u < IMG_WIDTH; u += 30)
+  {
+    for(int v = 0; v < IMG_HEIGHT; v += 30)
+    {
+      // undistort_pts.emplace_back(u, v);
+      Eigen::Vector2f uv_norm;
+      uv_norm.x() = (u - cx) / f;
+      uv_norm.y() = (v - cy) / f;
+      Eigen::Vector2f uv_distort = cam_ptr->distort_f(uv_norm);
+      Eigen::Vector2f uv_distort_old = cam_ptr->distort_f_old(uv_norm);
+      std::cout << "distort from " << uv_norm.transpose() << " to " << uv_distort.transpose() << "\n";
+      std::cout << "old distort from " << uv_norm.transpose() << " to " << uv_distort_old.transpose() << "\n";
+      // distort_pts.emplace_back(uv_distort.x(), uv_distort.y());
+      cv::circle(distort_viz, cv::Point(uv_distort.x(), uv_distort.y()), 2, cv::Scalar(0, 0, 255), 1);
+      cv::circle(distort_viz_old, cv::Point(uv_distort_old.x(), uv_distort_old.y()), 2, cv::Scalar(255, 0, 255), 1);
+    }
+  }
+  cv::imshow("distort", distort_viz);
+
+  cv::waitKey(1000000);
 
   // Lets make a feature extractor
   extractor = new TrackKLT(cameras, num_pts, num_aruco, use_stereo, method, fast_threshold, grid_x, grid_y, min_px_dist);
@@ -281,7 +304,6 @@ int main(int argc, char **argv) {
       cv::Mat undistort;
       cv::remap(img0, undistort, mapx, mapy, cv::INTER_LINEAR);
       cv::imshow("undistort", undistort);
-      cv::waitKey(10);
       if(do_downsizing)
       {
         cv::resize(img0, img0, cv::Size(img0.cols / 2, img0.rows / 2));

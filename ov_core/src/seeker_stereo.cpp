@@ -67,6 +67,15 @@ std::map<int, std::vector<VirtCamMap>> virt_cam_map;
 
 void img_cbk(const int& cam_id, const sensor_msgs::ImageConstPtr& msg)
 {
+  // this simple method may cause time sync problem in stereo matching
+  // static std::map<int, int> cam_cnt{
+  //   {0,0}, {1,0}, {2,0}, {3,0}
+  // };
+  // cam_cnt[cam_id]++;
+  // if(cam_cnt[cam_id] % 2 == 0)
+  // {
+  //   return;
+  // }  
   PRINT_INFO("got image, cam id: %d\n", cam_id);
   TicToc tic;
   if(virt_cam_map.find(cam_id)!=virt_cam_map.end() && !virt_cam_map[cam_id].empty())

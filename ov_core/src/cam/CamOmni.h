@@ -24,12 +24,20 @@ public:
   }
 
   Eigen::Vector2f distort_f(const Eigen::Vector2f &uv_norm) override {
-
     double u_d, v_d;
     space2plane(uv_norm.x(), uv_norm.y(), 1.0, &u_d, &v_d); // omni camera projection
     Eigen::MatrixXd cam_d = camera_values;
+    double fx = cam_d(0), fy = cam_d(1), cx = cam_d(2), cy = cam_d(3);
+    double u = fx * u_d + cx, v = fy * v_d + cy;
+    return Eigen::Vector2f(u, v);
+  }
 
-    // Calculate distorted coordinates for radtan distortion
+    Eigen::Vector2f distort_f_old(const Eigen::Vector2f &uv_norm) { // problems
+    double u_d, v_d;
+    space2plane(uv_norm.x(), uv_norm.y(), 1.0, &u_d, &v_d); // omni camera projection
+    Eigen::MatrixXd cam_d = camera_values;
+    // std::cout << "cam params: " << camera_values.transpose() << "\n";
+    // // Calculate distorted coordinates for radtan distortion
     double r = std::sqrt(u_d * u_d + v_d * v_d);
     double r_2 = r * r;
     double r_4 = r_2 * r_2;
@@ -46,13 +54,14 @@ public:
     Eigen::MatrixXd cam_d = camera_values;
 
     // Calculate distorted coordinates for radtan distortion
-    double r = std::sqrt(u_d * u_d + v_d * v_d);
-    double r_2 = r * r;
-    double r_4 = r_2 * r_2;
-    double x1 = u_d * (1 + cam_d(4) * r_2 + cam_d(5) * r_4) + 2 * cam_d(6) * u_d * v_d + cam_d(7) * (r_2 + 2 * u_d * u_d);
-    double y1 = v_d * (1 + cam_d(4) * r_2 + cam_d(5) * r_4) + cam_d(6) * (r_2 + 2 * v_d * v_d) + 2 * cam_d(7) * u_d * v_d;
+    // double r = std::sqrt(u_d * u_d + v_d * v_d);
+    // double r_2 = r * r;
+    // double r_4 = r_2 * r_2;
+    // double x1 = u_d * (1 + cam_d(4) * r_2 + cam_d(5) * r_4) + 2 * cam_d(6) * u_d * v_d + cam_d(7) * (r_2 + 2 * u_d * u_d);
+    // double y1 = v_d * (1 + cam_d(4) * r_2 + cam_d(5) * r_4) + cam_d(6) * (r_2 + 2 * v_d * v_d) + 2 * cam_d(7) * u_d * v_d;
     double fx = cam_d(0), fy = cam_d(1), cx = cam_d(2), cy = cam_d(3);
-    double u = fx * x1 + cx, v = fy * y1 + cy;
+    // double u = fx * x1 + cx, v = fy * y1 + cy;
+    double u = fx * u_d + cx, v = fy * v_d + cy;
     return Eigen::Vector2f(u, v);
   }
 
@@ -272,8 +281,6 @@ private:
     mx_d = mx_u + dx_u;
     my_d = my_u + dy_u;
 
-    // Apply generalised projection matrix
-    // Matlab points start at 1
     *u = mx_d;
     *v = my_d;
   }
