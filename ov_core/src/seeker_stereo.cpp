@@ -262,6 +262,8 @@ int main(int argc, char** argv)
   sensor_msgs::CameraInfo right_cam_info;
   right_cam_info = left_cam_info;
 
+  Eigen::Vector3d p_LeftinI = camera_extrinsics.at(0).block(4, 0, 3, 1);
+  std::cout << "p_LeftinI" << p_LeftinI.transpose() << std::endl;
 
   //init front camera remap 0 as left, 1 as right
   Eigen::Vector3d LtoR = camera_extrinsics.at(1).block(4, 0, 3, 1) - camera_extrinsics.at(0).block(4, 0, 3, 1);
@@ -447,6 +449,8 @@ int main(int argc, char** argv)
   R_Left_to_I.block<3, 1>(0, 0) = x_left_inI;
   R_Left_to_I.block<3, 1>(0, 1) = y_left_inI;
   R_Left_to_I.block<3, 1>(0, 2) = z_left_inI;
+  std::cout << "R left to i:\n" << R_Left_to_I << std::endl;
+  std::cout << "det of R left to i:\n" << R_Left_to_I.determinant() << std::endl;
 
   Eigen::Matrix3d R_BLtoLeft = R_Left_to_I.transpose() * R_BLtoI;
   cv::Mat mapx_Left_in_BL, mapy_Left_in_BL;

@@ -36,7 +36,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: Image Tracks
+    SyncSource: ""
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -69,38 +69,13 @@ Visualization Manager:
       Frame Timeout: 1200
       Frames:
         All Enabled: true
-        cam0:
-          Value: true
-        depth0:
-          Value: true
-        depth1:
-          Value: true
-        depth2:
-          Value: true
-        depth3:
-          Value: true
-        global:
-          Value: true
-        imu:
-          Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: false
       Show Axes: true
       Show Names: true
       Tree:
-        global:
-          imu:
-            cam0:
-              {}
-            depth0:
-              {}
-            depth1:
-              {}
-            depth2:
-              {}
-            depth3:
-              {}
+        {}
       Update Interval: 0
       Value: true
     - Class: rviz/Image
@@ -622,10 +597,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.23979824781417847
+      Pitch: 0.8897978067398071
       Target Frame: imu
       Value: Orbit (rviz)
-      Yaw: 3.349114418029785
+      Yaw: 3.454115629196167
     Saved: ~
 Window Geometry:
   Current Depths:

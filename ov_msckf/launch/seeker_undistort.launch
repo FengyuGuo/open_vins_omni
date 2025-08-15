@@ -1,0 +1,41 @@
+<launch>
+
+    <arg name="config"      default="seeker" /> <!-- euroc_mav, tum_vi, rpng_aruco -->
+    <arg name="config_path" default="$(find ov_msckf)/../config/$(arg config)/estimator_config.yaml" />
+
+    <arg name="do_seeker_repub"  default="true" />
+    
+    <group if="$(arg do_seeker_repub)">
+
+        <node name="repub1" pkg="image_transport" type="republish" output="screen" args="compressed in:=/fisheye/right/image_raw raw out:=/fisheye/right/image_raw">
+        <!-- <remap from="in" to="/fisheye/left/image_raw" />
+        <remap from="out" to="/fisheye/left/image_raw" /> -->
+        </node>
+
+        <node name="repub2" pkg="image_transport" type="republish" output="screen" args="compressed in:=/fisheye/left/image_raw raw out:=/fisheye/left/image_raw">
+        <!-- <remap from="in" to="/fisheye/left/image_raw" />
+        <remap from="out" to="/fisheye/left/image_raw" /> -->
+        </node>
+
+        <node name="repub3" pkg="image_transport" type="republish" output="screen" args="compressed in:=/fisheye/bright/image_raw raw out:=/fisheye/bright/image_raw">
+        <!-- <remap from="in" to="/fisheye/left/image_raw" />
+        <remap from="out" to="/fisheye/left/image_raw" /> -->
+        </node>
+
+        <node name="repub4" pkg="image_transport" type="republish" output="screen" args="compressed in:=/fisheye/bleft/image_raw raw out:=/fisheye/bleft/image_raw">
+        <!-- <remap from="in" to="/fisheye/left/image_raw" />
+        <remap from="out" to="/fisheye/left/image_raw" /> -->
+        </node>
+
+        <node name="repub5" pkg="image_transport" type="republish" output="screen" args="raw in:=/undistort/virt_front/left/image_raw compressed out:=/undistort/virt_front/left/image_raw">
+        <!-- <remap from="in" to="/fisheye/left/image_raw" />
+        <remap from="out" to="/fisheye/left/image_raw" /> -->
+        </node>
+
+        <node name="undistort" pkg="ov_core" type="seeker_stereo" output="screen">
+            <param name="config_path" type="string" value="$(find ov_msckf)/../config/$(arg config)/estimator_config.yaml"/>
+        </node>
+
+    </group>
+
+</launch>
