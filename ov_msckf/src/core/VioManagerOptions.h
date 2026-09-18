@@ -252,18 +252,43 @@ struct VioManagerOptions {
         std::vector<double> cam_calib2 = {0, 0, 0, 0};
         parser->parse_external("relative_config_imucam", "cam" + std::to_string(i), "intrinsics", cam_calib1);
         parser->parse_external("relative_config_imucam", "cam" + std::to_string(i), "distortion_coeffs", cam_calib2);
+        PRINT_DEBUG("####size of cam_calib2: %zu\n", cam_calib2.size());
+        if(cam_calib2.size() == 5 && dist_model == "equidistant")
+        {
+          PRINT_ERROR(RED "Equidistant camera model does not support 5 distortion coefficients!\n" RESET);
+          std::exit(EXIT_FAILURE);
+        }
         double xi = 0.0;
         Eigen::VectorXd cam_calib = Eigen::VectorXd::Zero(8);
         if(cam_calib1.size() == 4)
         {
-          cam_calib << cam_calib1.at(0), cam_calib1.at(1), cam_calib1.at(2), cam_calib1.at(3), cam_calib2.at(0), cam_calib2.at(1),
-            cam_calib2.at(2), cam_calib2.at(3);
+          if(cam_calib2.size() == 4)
+          {
+            cam_calib << cam_calib1.at(0), cam_calib1.at(1), cam_calib1.at(2), cam_calib1.at(3), cam_calib2.at(0), cam_calib2.at(1),
+              cam_calib2.at(2), cam_calib2.at(3);
+          }
+          else if(cam_calib2.size() == 5)
+          {
+            cam_calib = Eigen::VectorXd::Zero(9);
+            cam_calib << cam_calib1.at(0), cam_calib1.at(1), cam_calib1.at(2), cam_calib1.at(3), cam_calib2.at(0), cam_calib2.at(1),
+              cam_calib2.at(2), cam_calib2.at(3), cam_calib2.at(4);
+          }
         }
         else if(cam_calib1.size() == 5) // omni camera. xi, fx, fy, cx, cy
         {
           PRINT_DEBUG("###############size of camera calib1 is 5!\n");
-          cam_calib << cam_calib1.at(1), cam_calib1.at(2), cam_calib1.at(3), cam_calib1.at(4), cam_calib2.at(0), cam_calib2.at(1),
-            cam_calib2.at(2), cam_calib2.at(3);
+
+          if(cam_calib2.size() == 4)
+          {
+            cam_calib << cam_calib1.at(1), cam_calib1.at(2), cam_calib1.at(3), cam_calib1.at(4), cam_calib2.at(0), cam_calib2.at(1),
+              cam_calib2.at(2), cam_calib2.at(3);
+          }
+          else if(cam_calib2.size() == 5)
+          {
+            cam_calib = Eigen::VectorXd::Zero(9);
+            cam_calib << cam_calib1.at(1), cam_calib1.at(2), cam_calib1.at(3), cam_calib1.at(4), cam_calib2.at(0), cam_calib2.at(1),
+              cam_calib2.at(2), cam_calib2.at(3), cam_calib2.at(4);
+          }
           xi = cam_calib1.at(0);
           PRINT_DEBUG("################xi: %f\n", xi);
         }

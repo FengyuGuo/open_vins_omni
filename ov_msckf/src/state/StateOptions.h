@@ -82,6 +82,9 @@ struct StateOptions {
   /// Number of distinct cameras that we will observe features in
   int num_cameras = 1;
 
+  /// Size of camera calib vector
+  std::vector<int> camera_calib_size = {8};
+
   /// Cameras are synced (Same timestamp)
   bool camera_synced = false;
 
@@ -132,6 +135,8 @@ struct StateOptions {
       {
         parser->parse_config("camera_synced", camera_synced); // take effect when more than 2 cameras
       }
+      parser->parse_config("camera_calib_size", camera_calib_size);
+      assert(num_cameras == camera_calib_size.size());
 
       // Feature representations
       std::string rep1 = ov_type::LandmarkRepresentation::as_string(feat_rep_msckf);
@@ -176,6 +181,10 @@ struct StateOptions {
     PRINT_DEBUG("  - max_msckf_in_update: %d\n", max_msckf_in_update);
     PRINT_DEBUG("  - max_aruco: %d\n", max_aruco_features);
     PRINT_DEBUG("  - max_cameras: %d\n", num_cameras);
+    PRINT_DEBUG("  - camera_calib_size: ");
+    for (int i = 0; i < (int)camera_calib_size.size(); i++) {
+      PRINT_DEBUG("%d \n", camera_calib_size.at(i));
+    }
     PRINT_DEBUG("  - camera_synced: %d\n", camera_synced);
     PRINT_DEBUG("  - feat_rep_msckf: %s\n", ov_type::LandmarkRepresentation::as_string(feat_rep_msckf).c_str());
     PRINT_DEBUG("  - feat_rep_slam: %s\n", ov_type::LandmarkRepresentation::as_string(feat_rep_slam).c_str());

@@ -281,17 +281,36 @@ struct InertialInitializerOptions {
         std::vector<double> cam_calib2 = {0, 0, 0, 0};
         parser->parse_external("relative_config_imucam", "cam" + std::to_string(i), "intrinsics", cam_calib1);
         parser->parse_external("relative_config_imucam", "cam" + std::to_string(i), "distortion_coeffs", cam_calib2);
+        PRINT_DEBUG("####size of cam_calib2: %zu\n", cam_calib2.size());
         Eigen::VectorXd cam_calib = Eigen::VectorXd::Zero(8);
         double xi = 0;
         if(cam_calib1.size() == 4)
         {
-          cam_calib << cam_calib1.at(0), cam_calib1.at(1), cam_calib1.at(2), cam_calib1.at(3), cam_calib2.at(0), cam_calib2.at(1),
-            cam_calib2.at(2), cam_calib2.at(3);
+          if(cam_calib2.size() == 4)
+          {
+            cam_calib << cam_calib1.at(0), cam_calib1.at(1), cam_calib1.at(2), cam_calib1.at(3), cam_calib2.at(0), cam_calib2.at(1),
+              cam_calib2.at(2), cam_calib2.at(3);
+          }
+          else if(cam_calib2.size() == 5)
+          {
+            cam_calib = Eigen::VectorXd::Zero(9);
+            cam_calib << cam_calib1.at(0), cam_calib1.at(1), cam_calib1.at(2), cam_calib1.at(3), cam_calib2.at(0), cam_calib2.at(1),
+              cam_calib2.at(2), cam_calib2.at(3), cam_calib2.at(4);
+          }
         }
         else
         {
-          cam_calib << cam_calib1.at(1), cam_calib1.at(2), cam_calib1.at(3), cam_calib1.at(4), cam_calib2.at(0), cam_calib2.at(1),
-            cam_calib2.at(2), cam_calib2.at(3);
+          if(cam_calib2.size() == 4)
+          {
+            cam_calib << cam_calib1.at(1), cam_calib1.at(2), cam_calib1.at(3), cam_calib1.at(4), cam_calib2.at(0), cam_calib2.at(1),
+              cam_calib2.at(2), cam_calib2.at(3);
+          }
+          else if(cam_calib2.size() == 5)
+          {
+            cam_calib = Eigen::VectorXd::Zero(9);
+            cam_calib << cam_calib1.at(1), cam_calib1.at(2), cam_calib1.at(3), cam_calib1.at(4), cam_calib2.at(0), cam_calib2.at(1),
+              cam_calib2.at(2), cam_calib2.at(3), cam_calib2.at(4);
+          }
           xi = cam_calib1.at(0);
         }
         cam_calib(0) /= (downsample_cameras) ? 2.0 : 1.0;
@@ -350,6 +369,7 @@ struct InertialInitializerOptions {
          << camera_intrinsics.at(n)->get_value().block(0, 0, 4, 1).transpose() << std::endl;
       ss << "cam_" << n << "_intrinsic(4:7):" << std::endl
          << camera_intrinsics.at(n)->get_value().block(4, 0, 4, 1).transpose() << std::endl;
+      ss << "cam_" << n << "_intrinsic_size:" << std::endl << camera_intrinsics.at(n)->get_value().size() << std::endl;
       ss << "cam_" << n << "_extrinsic(0:3):" << std::endl << camera_extrinsics.at(n).block(0, 0, 4, 1).transpose() << std::endl;
       ss << "cam_" << n << "_extrinsic(4:6):" << std::endl << camera_extrinsics.at(n).block(4, 0, 3, 1).transpose() << std::endl;
       Eigen::Matrix4d T_CtoI = Eigen::Matrix4d::Identity();

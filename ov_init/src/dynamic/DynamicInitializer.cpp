@@ -57,6 +57,7 @@ bool DynamicInitializer::initialize(double &timestamp, Eigen::MatrixXd &covarian
   }
   double oldest_time = newest_cam_time - params.init_window_time;
   if (newest_cam_time < 0 || oldest_time < 0) {
+    PRINT_DEBUG(RED "[init-d]: newest_cam_time = %.3f, oldest_time = %.3f\n" RESET, newest_cam_time, oldest_time);
     return false;
   }
 
@@ -75,7 +76,7 @@ bool DynamicInitializer::initialize(double &timestamp, Eigen::MatrixXd &covarian
     return false;
   }
   if (imu_data->size() < 2 || !have_old_imu_readings) {
-    // PRINT_WARNING(RED "[init-d]: waiting for window to reach full size (%zu imu readings)!!\n" RESET, imu_data->size());
+    PRINT_DEBUG(RED "[init-d]: waiting for window to reach full size (%zu imu readings)!!\n" RESET, imu_data->size());
     return false;
   }
 
@@ -156,10 +157,11 @@ bool DynamicInitializer::initialize(double &timestamp, Eigen::MatrixXd &covarian
   // Return if we do not have our full window or not enough measurements
   // Also check that we have enough features to initialize with
   if ((int)map_camera_times.size() < params.init_dyn_num_pose) {
+    PRINT_DEBUG(RED "[init-d]: only %zu camera poses of required %d!!\n" RESET, map_camera_times.size(), params.init_dyn_num_pose);
     return false;
   }
   if (count_valid_features < min_valid_features) {
-    PRINT_WARNING(RED "[init-d]: only %zu valid features of required %d!!\n" RESET, count_valid_features, min_valid_features);
+    PRINT_DEBUG(RED "[init-d]: only %zu valid features of required %d!!\n" RESET, count_valid_features, min_valid_features);
     return false;
   }
 

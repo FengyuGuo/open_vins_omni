@@ -58,6 +58,11 @@ public:
 
     double fx = camera_values(0), fy = camera_values(1);
     double k1 = camera_values(4), k2 = camera_values(5), p1 = camera_values(6), p2 = camera_values(7);
+    double k3 = 0.0;
+    if(camera_values.rows() == 9)
+    {
+      k3 = camera_values(8);
+    }
 
     H_dz_dzn(0, 0) = // x
         fx *
@@ -74,82 +79,85 @@ public:
               k2 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
                            pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2),
                        2) +
+              k3 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
+                           pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2),
+                       3) +
               1) /
              (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) * sqrt(pow(x, 2) + pow(y, 2) + 1)) +
-         x * (k1 * (-2 * pow(x, 3) * xi / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 2 * x * xi * pow(y, 2) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2 * x / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2 * (pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) * (-4 * pow(x, 3) * xi / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 4 * x * xi * pow(y, 2) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 4 * x / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2))) /
+         x * (k1 * (-2 * pow(x, 3) * xi / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 2 * x * xi * pow(y, 2) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2 * x / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2 * (pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) * (-4 * pow(x, 3) * xi / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 4 * x * xi * pow(y, 2) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 4 * x / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k3 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2) * (-6 * pow(x, 3) * xi / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 6 * x * xi * pow(y, 2) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 6 * x / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2))) /
              (xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0) +
          (k1 * (pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
                 pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) +
           k2 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
                        pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2),
                    2) +
+          k3 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
+                       pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2),
+                   3) +
           1) /
              (xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0));
     H_dz_dzn(0, 1) = // y
-        fx *
-        (-4 * p1 * x * xi * pow(y, 2) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) +
-         2 * p1 * x / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
-         p2 * (-2 * pow(x, 3) * xi * y / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) -
-               2 * pow(x, 2) * xi * y / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) -
-               2 * xi * pow(y, 3) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) +
-               2 * y / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) -
-         x * xi * y *
-             (k1 * (pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
-                    pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) +
-              k2 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
-                           pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2),
-                       2) +
-              1) /
-             (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) * sqrt(pow(x, 2) + pow(y, 2) + 1)) +
-         x * (k1 * (-2 * pow(x, 2) * xi * y / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 2 * xi * pow(y, 3) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2 * y / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2 * (pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) * (-4 * pow(x, 2) * xi * y / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 4 * xi * pow(y, 3) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 4 * y / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2))) /
-             (xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0));
+        fx * (-4 * p1 * x * xi * pow(y, 2) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) +
+              2 * p1 * x / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
+              p2 * (-2 * pow(x, 3) * xi * y / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) -
+                    2 * pow(x, 2) * xi * y / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) -
+                    2 * xi * pow(y, 3) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) +
+                    2 * y / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) -
+              x * xi * y *
+                  (k1 * (pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
+                         pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) +
+                   k2 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
+                                pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2),
+                            2) +
+                   k3 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
+                                pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2),
+                            3) +
+                   1) /
+                  (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) * sqrt(pow(x, 2) + pow(y, 2) + 1)) +
+              x * (k1 * (-2 * pow(x, 2) * xi * y / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 2 * xi * pow(y, 3) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2 * y / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2 * (pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) * (-4 * pow(x, 2) * xi * y / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 4 * xi * pow(y, 3) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 4 * y / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k3 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2) * (-6 * pow(x, 2) * xi * y / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 6 * xi * pow(y, 3) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 6 * y / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2))) /
+                  (xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0));
     H_dz_dzn(1, 0) = // x
         fy *
-        (p1 *
-             (-2 * pow(x, 3) * xi / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) -
-              2 * pow(x, 2) * xi * pow(y, 2) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) -
-              2 * x * xi * pow(y, 2) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) +
-              2 * x / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) -
-         4 * p2 * pow(x, 2) * xi * y / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) +
-         2 * p2 * y / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) -
-         x * xi * y *
-             (k1 * (pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
-                    pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) +
-              k2 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
-                           pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2),
-                       2) +
-              1) /
-             (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) * sqrt(pow(x, 2) + pow(y, 2) + 1)) +
-         y * (k1 * (-2 * pow(x, 3) * xi / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 2 * x * xi * pow(y, 2) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2 * x / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2 * (pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) * (-4 * pow(x, 3) * xi / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 4 * x * xi * pow(y, 2) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 4 * x / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2))) /
-             (xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0));
+        (p1 * (-2 * pow(x, 3) * xi / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 2 * pow(x, 2) * xi * pow(y, 2) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 2 * x * xi * pow(y, 2) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2 * x / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) - 4 * p2 * pow(x, 2) * xi * y / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2 * p2 * y / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) - x * xi * y * (k1 * (pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2) + k3 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 3) + 1) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + y * (k1 * (-2 * pow(x, 3) * xi / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 2 * x * xi * pow(y, 2) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2 * x / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2 * (pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) * (-4 * pow(x, 3) * xi / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 4 * x * xi * pow(y, 2) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 4 * x / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k3 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2) * (-6 * pow(x, 3) * xi / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 6 * x * xi * pow(y, 2) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 6 * x / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2))) / (xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0));
     H_dz_dzn(1, 1) = // y
-        fy *
-        (p1 * (-2 * pow(x, 2) * xi * y / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) -
-               2 * x * xi * pow(y, 3) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) +
-               2 * x * y / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) -
-               2 * xi * pow(y, 3) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) +
-               2 * y / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) -
-         4 * p2 * x * xi * pow(y, 2) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) +
-         2 * p2 * x / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) -
-         xi * pow(y, 2) *
-             (k1 * (pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
-                    pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) +
-              k2 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
-                           pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2),
-                       2) +
-              1) /
-             (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) * sqrt(pow(x, 2) + pow(y, 2) + 1)) +
-         y * (k1 * (-2 * pow(x, 2) * xi * y / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 2 * xi * pow(y, 3) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2 * y / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2 * (pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) * (-4 * pow(x, 2) * xi * y / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 4 * xi * pow(y, 3) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 4 * y / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2))) /
-             (xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0) +
-         (k1 * (pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
-                pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) +
-          k2 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
-                       pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2),
-                   2) +
-          1) /
-             (xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0));
+        fy * (p1 * (-2 * pow(x, 2) * xi * y / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) -
+                    2 * x * xi * pow(y, 3) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) +
+                    2 * x * y / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) -
+                    2 * xi * pow(y, 3) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) +
+                    2 * y / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) -
+              4 * p2 * x * xi * pow(y, 2) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) +
+              2 * p2 * x / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) -
+              xi * pow(y, 2) * (k1 * (pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2) + k3 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 3) + 1) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + y * (k1 * (-2 * pow(x, 2) * xi * y / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 2 * xi * pow(y, 3) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 2 * y / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2 * (pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) * (-4 * pow(x, 2) * xi * y / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 4 * xi * pow(y, 3) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 4 * y / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k3 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2) * (-6 * pow(x, 2) * xi * y / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) - 6 * xi * pow(y, 3) / (pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) * sqrt(pow(x, 2) + pow(y, 2) + 1)) + 6 * y / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2))) / (xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0) +
+              (k1 * (pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
+                     pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) +
+               k2 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
+                            pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2),
+                        2) +
+               k3 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
+                            pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2),
+                        3) +
+               1) /
+                  (xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0));
 
-    H_dz_dzeta.resize(2, 8);
+    if (camera_values.size() == 8) {
+      H_dz_dzeta.resize(2, 8);
+    } else if (camera_values.size() == 9) {
+      H_dz_dzeta.resize(2, 9);
+      H_dz_dzeta(0, 8) = // k3
+          fx * x *
+          pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
+                  pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2),
+              3) /
+          (xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0);
+      H_dz_dzeta(1, 8) = // k3
+          fy * y *
+          pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
+                  pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2),
+              3) /
+          (xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0);
+    } else {
+      assert(false);
+    }
     H_dz_dzeta.setZero();
 
     H_dz_dzeta(0, 0) = // fx
@@ -163,6 +171,9 @@ public:
              k2 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
                           pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2),
                       2) +
+             k3 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
+                          pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2),
+                      3) +
              1) /
             (xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0);
     H_dz_dzeta(0, 1) = 0; // fy
@@ -196,6 +207,9 @@ public:
              k2 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
                           pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2),
                       2) +
+             k3 * pow(pow(x, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
+                          pow(y, 2) / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2),
+                      3) +
              1) /
             (xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0);
     H_dz_dzeta(1, 2) = 0; // cx
@@ -216,30 +230,36 @@ public:
     H_dz_dzeta(1, 7) = // p2
         2 * fy * x * y / pow(xi * sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2);
 
-    // dzx_dxi =
-    //   fx*(-4*p1*x*y*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) + p2*(-2*pow(x, 3)*sqrt(pow(x, 2) +
-    //   pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 2*pow(x, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2)
-    //   + pow(y, 2) + 1) + 1.0, 3) - 2*pow(y, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)) +
-    //   x*(k1*(-2*pow(x, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 2*pow(y, 2)*sqrt(pow(x, 2) +
-    //   pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)) + k2*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) +
-    //   pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2))*(-4*pow(x, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) +
-    //   pow(y, 2) + 1) + 1.0, 3) - 4*pow(y, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0,
-    //   3)))/(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0) - x*sqrt(pow(x, 2) + pow(y, 2) + 1)*(k1*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y,
-    //   2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2*pow(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y,
-    //   2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1)
-    //   + 1.0, 2));
-    // dzy_dxi =
-    //   fy*(p1*(-2*pow(x, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 2*x*pow(y, 2)*sqrt(pow(x,
-    //   2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 2*pow(y, 2)*sqrt(pow(x, 2) + pow(y, 2) +
-    //   1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)) - 4*p2*x*y*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) +
-    //   1) + 1.0, 3) + y*(k1*(-2*pow(x, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 2*pow(y,
-    //   2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)) + k2*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y,
-    //   2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2))*(-4*pow(x, 2)*sqrt(pow(x, 2) + pow(y, 2) +
-    //   1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 4*pow(y, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2)
-    //   + 1) + 1.0, 3)))/(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0) - y*sqrt(pow(x, 2) + pow(y, 2) + 1)*(k1*(pow(x, 2)/pow(xi*sqrt(pow(x,
-    //   2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2*pow(pow(x, 2)/pow(xi*sqrt(pow(x,
-    //   2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y,
-    //   2) + 1) + 1.0, 2));
+    // dzx_dxi = fx*(-4*p1*x*y*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) + p2*(-2*pow(x,
+    // 3)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 2*pow(x, 2)*sqrt(pow(x, 2) + pow(y, 2) +
+    // 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 2*pow(y, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) +
+    // 1) + 1.0, 3)) + x*(k1*(-2*pow(x, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 2*pow(y,
+    // 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)) + k2*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y,
+    // 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2))*(-4*pow(x, 2)*sqrt(pow(x, 2) + pow(y, 2) +
+    // 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 4*pow(y, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) +
+    // 1) + 1.0, 3)) + k3*pow(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1)
+    // + 1.0, 2), 2)*(-6*pow(x, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 6*pow(y,
+    // 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)))/(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0) -
+    // x*sqrt(pow(x, 2) + pow(y, 2) + 1)*(k1*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) +
+    // pow(y, 2) + 1) + 1.0, 2)) + k2*pow(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) +
+    // pow(y, 2) + 1) + 1.0, 2), 2) + k3*pow(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) +
+    // pow(y, 2) + 1) + 1.0, 2), 3) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)); 
+    
+    // dzy_dxi = fy*(p1*(-2*pow(x, 2)*sqrt(pow(x, 2) +
+    // pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 2*x*pow(y, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2)
+    // + pow(y, 2) + 1) + 1.0, 3) - 2*pow(y, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)) -
+    // 4*p2*x*y*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) + y*(k1*(-2*pow(x, 2)*sqrt(pow(x, 2) +
+    // pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 2*pow(y, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) +
+    // pow(y, 2) + 1) + 1.0, 3)) + k2*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y,
+    // 2) + 1) + 1.0, 2))*(-4*pow(x, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 4*pow(y,
+    // 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3)) + k3*pow(pow(x, 2)/pow(xi*sqrt(pow(x, 2) +
+    // pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2)*(-6*pow(x, 2)*sqrt(pow(x, 2) + pow(y, 2) +
+    // 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 3) - 6*pow(y, 2)*sqrt(pow(x, 2) + pow(y, 2) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) +
+    // 1) + 1.0, 3)))/(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0) - y*sqrt(pow(x, 2) + pow(y, 2) + 1)*(k1*(pow(x, 2)/pow(xi*sqrt(pow(x, 2) +
+    // pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2)) + k2*pow(pow(x, 2)/pow(xi*sqrt(pow(x, 2) +
+    // pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 2) + k3*pow(pow(x, 2)/pow(xi*sqrt(pow(x, 2) +
+    // pow(y, 2) + 1) + 1.0, 2) + pow(y, 2)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1) + 1.0, 2), 3) + 1)/pow(xi*sqrt(pow(x, 2) + pow(y, 2) + 1)
+    // + 1.0, 2));
   }
 
 private:
@@ -278,12 +298,12 @@ private:
    */
   void omni_distortion(double mx_u, double my_u, double *dx_u, double *dy_u) const {
     double mx2_u, my2_u, mxy_u, rho2_u, rad_dist_u;
-    double k1 = camera_values(4), k2 = camera_values(5), p1 = camera_values(6), p2 = camera_values(7);
+    double k1 = camera_values(4), k2 = camera_values(5), p1 = camera_values(6), p2 = camera_values(7), k3 = camera_values(8);
     mx2_u = mx_u * mx_u;
     my2_u = my_u * my_u;
     mxy_u = mx_u * my_u;
     rho2_u = mx2_u + my2_u;
-    rad_dist_u = k1 * rho2_u + k2 * rho2_u * rho2_u;
+    rad_dist_u = k1 * rho2_u + k2 * rho2_u * rho2_u + k3 * rho2_u * rho2_u * rho2_u;
     *dx_u = mx_u * rad_dist_u + 2 * p1 * mxy_u + p2 * (rho2_u + 2 * mx2_u);
     *dy_u = my_u * rad_dist_u + 2 * p2 * mxy_u + p1 * (rho2_u + 2 * my2_u);
   }
@@ -291,12 +311,12 @@ private:
   void omni_distortion(double mx_u, double my_u, double *dx_u, double *dy_u, double *dxdmx, double *dydmx, double *dxdmy,
                        double *dydmy) const {
     double mx2_u, my2_u, mxy_u, rho2_u, rad_dist_u;
-    double k1 = camera_values(4), k2 = camera_values(5), p1 = camera_values(6), p2 = camera_values(7);
+    double k1 = camera_values(4), k2 = camera_values(5), p1 = camera_values(6), p2 = camera_values(7), k3 = camera_values(8);
     mx2_u = mx_u * mx_u;
     my2_u = my_u * my_u;
     mxy_u = mx_u * my_u;
     rho2_u = mx2_u + my2_u;
-    rad_dist_u = k1 * rho2_u + k2 * rho2_u * rho2_u;
+    rad_dist_u = k1 * rho2_u + k2 * rho2_u * rho2_u + k3 * rho2_u * rho2_u * rho2_u;
     *dx_u = mx_u * rad_dist_u + 2 * p1 * mxy_u + p2 * (rho2_u + 2 * mx2_u);
     *dy_u = my_u * rad_dist_u + 2 * p2 * mxy_u + p1 * (rho2_u + 2 * my2_u);
 

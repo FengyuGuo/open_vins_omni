@@ -100,7 +100,7 @@ public:
 
     // Determine what camera parameters we should use
     cv::Matx33d camK = camera_k_OPENCV;
-    cv::Vec4d camD = camera_d_OPENCV;
+    cv::Vec<double, 5> camD = camera_d_OPENCV;
 
     // Convert to opencv format
     cv::Mat mat(1, 2, CV_32F);
@@ -133,9 +133,15 @@ public:
     double r = std::sqrt(uv_norm(0) * uv_norm(0) + uv_norm(1) * uv_norm(1));
     double r_2 = r * r;
     double r_4 = r_2 * r_2;
-    double x1 = uv_norm(0) * (1 + cam_d(4) * r_2 + cam_d(5) * r_4) + 2 * cam_d(6) * uv_norm(0) * uv_norm(1) +
+    double r_6 = r_4 * r_2;
+    double k3 = 0.0;
+    if(cam_d.rows() == 9) // to keep compatible with 4 params model
+    {
+      k3 = cam_d(8);
+    }
+    double x1 = uv_norm(0) * (1 + cam_d(4) * r_2 + cam_d(5) * r_4 + k3 * r_6) + 2 * cam_d(6) * uv_norm(0) * uv_norm(1) +
                 cam_d(7) * (r_2 + 2 * uv_norm(0) * uv_norm(0));
-    double y1 = uv_norm(1) * (1 + cam_d(4) * r_2 + cam_d(5) * r_4) + cam_d(6) * (r_2 + 2 * uv_norm(1) * uv_norm(1)) +
+    double y1 = uv_norm(1) * (1 + cam_d(4) * r_2 + cam_d(5) * r_4 + k3 * r_6) + cam_d(6) * (r_2 + 2 * uv_norm(1) * uv_norm(1)) +
                 2 * cam_d(7) * uv_norm(0) * uv_norm(1);
 
     // Return the distorted point
@@ -160,6 +166,14 @@ public:
     double r = std::sqrt(uv_norm(0) * uv_norm(0) + uv_norm(1) * uv_norm(1));
     double r_2 = r * r;
     double r_4 = r_2 * r_2;
+    double k3 = 0.0;
+    if(cam_d.rows() == 9) // to keep compatible with 4 params model
+    {
+      k3 = cam_d(8);
+    }
+    double fx = cam_d(0), fy = cam_d(1), cx = cam_d(2), cy = cam_d(3);
+    double k1 = cam_d(4), k2 = cam_d(5), p1 = cam_d(6), p2 = cam_d(7);
+
 
     // Jacobian of distorted pixel to normalized pixel
     H_dz_dzn = Eigen::MatrixXd::Zero(2, 2);
@@ -168,33 +182,105 @@ public:
     double x_2 = uv_norm(0) * uv_norm(0);
     double y_2 = uv_norm(1) * uv_norm(1);
     double x_y = uv_norm(0) * uv_norm(1);
-    H_dz_dzn(0, 0) = cam_d(0) * ((1 + cam_d(4) * r_2 + cam_d(5) * r_4) + (2 * cam_d(4) * x_2 + 4 * cam_d(5) * x_2 * r_2) +
-                                 2 * cam_d(6) * y + (2 * cam_d(7) * x + 4 * cam_d(7) * x));
-    H_dz_dzn(0, 1) = cam_d(0) * (2 * cam_d(4) * x_y + 4 * cam_d(5) * x_y * r_2 + 2 * cam_d(6) * x + 2 * cam_d(7) * y);
-    H_dz_dzn(1, 0) = cam_d(1) * (2 * cam_d(4) * x_y + 4 * cam_d(5) * x_y * r_2 + 2 * cam_d(6) * x + 2 * cam_d(7) * y);
-    H_dz_dzn(1, 1) = cam_d(1) * ((1 + cam_d(4) * r_2 + cam_d(5) * r_4) + (2 * cam_d(4) * y_2 + 4 * cam_d(5) * y_2 * r_2) +
-                                 2 * cam_d(7) * x + (2 * cam_d(6) * y + 4 * cam_d(6) * y));
+
+    // Old code for 4 parameter model k1 k2 p1 p2
+    // H_dz_dzn(0, 0) = cam_d(0) * ((1 + cam_d(4) * r_2 + cam_d(5) * r_4) + (2 * cam_d(4) * x_2 + 4 * cam_d(5) * x_2 * r_2) +
+    //                              2 * cam_d(6) * y + (2 * cam_d(7) * x + 4 * cam_d(7) * x));
+    // H_dz_dzn(0, 1) = cam_d(0) * (2 * cam_d(4) * x_y + 4 * cam_d(5) * x_y * r_2 + 2 * cam_d(6) * x + 2 * cam_d(7) * y);
+    // H_dz_dzn(1, 0) = cam_d(1) * (2 * cam_d(4) * x_y + 4 * cam_d(5) * x_y * r_2 + 2 * cam_d(6) * x + 2 * cam_d(7) * y);
+    // H_dz_dzn(1, 1) = cam_d(1) * ((1 + cam_d(4) * r_2 + cam_d(5) * r_4) + (2 * cam_d(4) * y_2 + 4 * cam_d(5) * y_2 * r_2) +
+    //                              2 * cam_d(7) * x + (2 * cam_d(6) * y + 4 * cam_d(6) * y));
+
+    // New code for 5 parameter model k1 k2 p1 p2 k3
+    H_dz_dzn(0, 0) = fx * (k1 * (pow(x, 2) + pow(y, 2)) + k2 * pow(pow(x, 2) + pow(y, 2), 2) + k3 * pow(pow(x, 2) + pow(y, 2), 3) +
+                           2 * p1 * y + p2 * (3 * pow(x, 2) + 2 * x) +
+                           x * (2 * k1 * x + 4 * k2 * x * (pow(x, 2) + pow(y, 2)) + 6 * k3 * x * pow(pow(x, 2) + pow(y, 2), 2)) + 1);
+    H_dz_dzn(0, 1) = fx * (2 * p1 * x + 2 * p2 * y +
+                           x * (2 * k1 * y + 4 * k2 * y * (pow(x, 2) + pow(y, 2)) + 6 * k3 * y * pow(pow(x, 2) + pow(y, 2), 2)));
+
+    H_dz_dzn(1, 0) = fy * (p1 * (2 * x + pow(y, 2)) + 2 * p2 * y +
+                           y * (2 * k1 * x + 4 * k2 * x * (pow(x, 2) + pow(y, 2)) + 6 * k3 * x * pow(pow(x, 2) + pow(y, 2), 2)));
+    H_dz_dzn(1, 1) = fy * (k1 * (pow(x, 2) + pow(y, 2)) + k2 * pow(pow(x, 2) + pow(y, 2), 2) + k3 * pow(pow(x, 2) + pow(y, 2), 3) +
+                           p1 * (2 * x * y + 2 * y) + 2 * p2 * x +
+                           y * (2 * k1 * y + 4 * k2 * y * (pow(x, 2) + pow(y, 2)) + 6 * k3 * y * pow(pow(x, 2) + pow(y, 2), 2)) + 1);
 
     // Calculate distorted coordinates for radtan
-    double x1 = uv_norm(0) * (1 + cam_d(4) * r_2 + cam_d(5) * r_4) + 2 * cam_d(6) * uv_norm(0) * uv_norm(1) +
-                cam_d(7) * (r_2 + 2 * uv_norm(0) * uv_norm(0));
-    double y1 = uv_norm(1) * (1 + cam_d(4) * r_2 + cam_d(5) * r_4) + cam_d(6) * (r_2 + 2 * uv_norm(1) * uv_norm(1)) +
-                2 * cam_d(7) * uv_norm(0) * uv_norm(1);
+    // double x1 = uv_norm(0) * (1 + cam_d(4) * r_2 + cam_d(5) * r_4) + 2 * cam_d(6) * uv_norm(0) * uv_norm(1) +
+    //             cam_d(7) * (r_2 + 2 * uv_norm(0) * uv_norm(0));
+    // double y1 = uv_norm(1) * (1 + cam_d(4) * r_2 + cam_d(5) * r_4) + cam_d(6) * (r_2 + 2 * uv_norm(1) * uv_norm(1)) +
+    //             2 * cam_d(7) * uv_norm(0) * uv_norm(1);
 
     // Compute the Jacobian in respect to the intrinsics
-    H_dz_dzeta = Eigen::MatrixXd::Zero(2, 8);
-    H_dz_dzeta(0, 0) = x1;
+    // H_dz_dzeta = Eigen::MatrixXd::Zero(2, 8);
+    // H_dz_dzeta(0, 0) = x1;
+    // H_dz_dzeta(0, 2) = 1;
+    // H_dz_dzeta(0, 4) = cam_d(0) * uv_norm(0) * r_2;
+    // H_dz_dzeta(0, 5) = cam_d(0) * uv_norm(0) * r_4;
+    // H_dz_dzeta(0, 6) = 2 * cam_d(0) * uv_norm(0) * uv_norm(1);
+    // H_dz_dzeta(0, 7) = cam_d(0) * (r_2 + 2 * uv_norm(0) * uv_norm(0));
+    // H_dz_dzeta(1, 1) = y1;
+    // H_dz_dzeta(1, 3) = 1;
+    // H_dz_dzeta(1, 4) = cam_d(1) * uv_norm(1) * r_2;
+    // H_dz_dzeta(1, 5) = cam_d(1) * uv_norm(1) * r_4;
+    // H_dz_dzeta(1, 6) = cam_d(1) * (r_2 + 2 * uv_norm(1) * uv_norm(1));
+    // H_dz_dzeta(1, 7) = 2 * cam_d(1) * uv_norm(0) * uv_norm(1);
+
+    if(cam_d.rows() == 9)
+    {
+      H_dz_dzeta = Eigen::MatrixXd::Zero(2, 9);
+    }
+    else if(cam_d.rows() == 8)
+    {
+      H_dz_dzeta = Eigen::MatrixXd::Zero(2, 8);
+    }
+    else
+    {
+      assert(false);
+    }
+    // fx
+    H_dz_dzeta(0, 0) = 2 * p1 * x * y + p2 * (pow(x, 3) + pow(x, 2) + pow(y, 2)) +
+                       x * (k1 * (pow(x, 2) + pow(y, 2)) + k2 * pow(pow(x, 2) + pow(y, 2), 2) + k3 * pow(pow(x, 2) + pow(y, 2), 3) + 1);
+
+    // fy
+    H_dz_dzeta(0, 1) = 0;
+    // cx
     H_dz_dzeta(0, 2) = 1;
-    H_dz_dzeta(0, 4) = cam_d(0) * uv_norm(0) * r_2;
-    H_dz_dzeta(0, 5) = cam_d(0) * uv_norm(0) * r_4;
-    H_dz_dzeta(0, 6) = 2 * cam_d(0) * uv_norm(0) * uv_norm(1);
-    H_dz_dzeta(0, 7) = cam_d(0) * (r_2 + 2 * uv_norm(0) * uv_norm(0));
-    H_dz_dzeta(1, 1) = y1;
+    // cy
+    H_dz_dzeta(0, 3) = 0;
+    // k1
+    H_dz_dzeta(0, 4) = fx * x * (pow(x, 2) + pow(y, 2));
+    // k2
+    H_dz_dzeta(0, 5) = fx * x * pow(pow(x, 2) + pow(y, 2), 2);
+    // p1
+    H_dz_dzeta(0, 6) = 2 * fx * x * y;
+    // p2
+    H_dz_dzeta(0, 7) = fx * (pow(x, 3) + pow(x, 2) + pow(y, 2));
+
+    //fx
+    H_dz_dzeta(1, 0) = 0;
+    //fy
+    H_dz_dzeta(1, 1) = p1 * (pow(x, 2) + x * pow(y, 2) + pow(y, 2)) + 2 * p2 * x * y +
+                       y * (k1 * (pow(x, 2) + pow(y, 2)) + k2 * pow(pow(x, 2) + pow(y, 2), 2) + k3 * pow(pow(x, 2) + pow(y, 2), 3) + 1);
+    // cx
+    H_dz_dzeta(1, 2) = 0;
+    // cy
     H_dz_dzeta(1, 3) = 1;
-    H_dz_dzeta(1, 4) = cam_d(1) * uv_norm(1) * r_2;
-    H_dz_dzeta(1, 5) = cam_d(1) * uv_norm(1) * r_4;
-    H_dz_dzeta(1, 6) = cam_d(1) * (r_2 + 2 * uv_norm(1) * uv_norm(1));
-    H_dz_dzeta(1, 7) = 2 * cam_d(1) * uv_norm(0) * uv_norm(1);
+    // k1
+    H_dz_dzeta(1, 4) = fy * y * (pow(x, 2) + pow(y, 2));
+    // k2
+    H_dz_dzeta(1, 5) = fy * y * pow(pow(x, 2) + pow(y, 2), 2);
+    // p1
+    H_dz_dzeta(1, 6) = fy * (pow(x, 2) + x * pow(y, 2) + pow(y, 2));
+    // p2
+    H_dz_dzeta(1, 7) = 2 * fy * x * y;
+
+    if(cam_d.rows() == 9)
+    {
+      // k3
+      H_dz_dzeta(0, 8) = fx*x*pow(pow(x, 2) + pow(y, 2), 3);
+      H_dz_dzeta(1, 8) = fy*y*pow(pow(x, 2) + pow(y, 2), 3);
+    }
+
   }
 };
 

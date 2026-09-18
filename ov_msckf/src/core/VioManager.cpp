@@ -94,10 +94,12 @@ VioManager::VioManager(VioManagerOptions &params_) : thread_init_running(false),
   // Loop through and load each of the cameras
   state->_cam_intrinsics_cameras = params.camera_intrinsics;
   for (int i = 0; i < state->_options.num_cameras; i++) {
+    PRINT_DEBUG("Loading camera %d intrinsics and extrinsics\n", i);
     state->_cam_intrinsics.at(i)->set_value(params.camera_intrinsics.at(i)->get_value());
     state->_cam_intrinsics.at(i)->set_fej(params.camera_intrinsics.at(i)->get_value());
     state->_calib_IMUtoCAM.at(i)->set_value(params.camera_extrinsics.at(i));
     state->_calib_IMUtoCAM.at(i)->set_fej(params.camera_extrinsics.at(i));
+    PRINT_DEBUG("End of loading camera %d intrinsics and extrinsics\n", i);
   }
 
   //===================================================================================

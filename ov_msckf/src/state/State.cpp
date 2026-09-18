@@ -109,7 +109,8 @@ State::State(StateOptions &options) {
     auto pose = std::make_shared<PoseJPL>();
 
     // Allocate intrinsics for this camera
-    auto intrin = std::make_shared<Vec>(8);
+    int calib_size = _options.camera_calib_size.at(i);
+    auto intrin = std::make_shared<Vec>(calib_size);
 
     // Add these to the corresponding maps
     _calib_IMUtoCAM.insert({i, pose});

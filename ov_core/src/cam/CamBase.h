@@ -58,7 +58,22 @@ public:
   virtual void set_value(const Eigen::MatrixXd &calib) {
 
     // Assert we are of size eight
-    assert(calib.rows() == 8);
+    // assert(calib.rows() == 8);
+
+    if(calib.rows() == 8)
+    {
+      PRINT_DEBUG("Camera calibration have 8 values\n");
+    }
+    else if(calib.rows() == 9)
+    {
+      PRINT_DEBUG("Camera calibration have 9 values. Only radtan distortion model is supported.\n");
+    }
+    else
+    {
+      PRINT_ERROR("Camera calibration have %zu values. Only 8 or 9 values are supported.\n", calib.rows());
+      assert(false);
+    }
+
     camera_values = calib;
 
     // Camera matrix
@@ -75,11 +90,20 @@ public:
     camera_k_OPENCV = tempK;
 
     // Distortion parameters
-    cv::Vec4d tempD;
+    // cv::Vec4d tempD;
+    cv::Vec<double, 5> tempD;
     tempD(0) = calib(4);
     tempD(1) = calib(5);
     tempD(2) = calib(6);
     tempD(3) = calib(7);
+    if(calib.rows() == 9)
+    {
+      tempD(4) = calib(8);
+    }
+    else
+    {
+      tempD(4) = 0.0;
+    }
     camera_d_OPENCV = tempD;
   }
 
@@ -171,7 +195,7 @@ public:
   cv::Matx33d get_K() { return camera_k_OPENCV; }
 
   /// Gets the camera distortion
-  cv::Vec4d get_D() { return camera_d_OPENCV; }
+  cv::Vec<double, 5> get_D() { return camera_d_OPENCV; }
 
   /// Gets the width of the camera images
   int w() { return _width; }
@@ -183,6 +207,8 @@ protected:
   // Cannot construct the base camera class, needs a distortion model
   CamBase() = default;
 
+  // TODO: add support for 5 param of distortion model
+  // the 5th parammeter is k3 for radtan and k5 for equidistant model
   /// Raw set of camera intrinic values (f_x & f_y & c_x & c_y & k_1 & k_2 & k_3 & k_4)
   Eigen::MatrixXd camera_values;
 
@@ -190,7 +216,7 @@ protected:
   cv::Matx33d camera_k_OPENCV;
 
   /// Camera distortion in OpenCV format
-  cv::Vec4d camera_d_OPENCV;
+  cv::Vec<double, 5> camera_d_OPENCV;
 
   /// Width of the camera (raw pixels)
   int _width;
@@ -198,6 +224,7 @@ protected:
   /// Height of the camera (raw pixels)
   int _height;
 
+  /// Camera xi parameter for omnidirectional camera models
   double xi_;
 };
 

@@ -109,7 +109,12 @@ public:
 
     // Determine what camera parameters we should use
     cv::Matx33d camK = camera_k_OPENCV;
-    cv::Vec4d camD = camera_d_OPENCV;
+    cv::Vec4d camD;
+    // for now opencv fisheye module only support 4 params model
+    camD(0) = camera_d_OPENCV(0);
+    camD(1) = camera_d_OPENCV(1);
+    camD(2) = camera_d_OPENCV(2);
+    camD(3) = camera_d_OPENCV(3);
 
     // Convert point to opencv format
     cv::Mat mat(1, 2, CV_32F);
@@ -118,6 +123,7 @@ public:
     mat = mat.reshape(2); // Nx1, 2-channel
 
     // Undistort it!
+    // for now opencv fisheye module only support 4 params model
     cv::fisheye::undistortPoints(mat, mat, camK, camD);
 
     // Construct our return vector
