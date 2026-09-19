@@ -27,7 +27,7 @@
     <arg name="path_gt"     default="$(find ov_data)/$(arg config)/$(arg dataset).txt" />
 
     <arg name="do_repub"  default="true" />
-    <arg name="do_viz"  default="true" />
+    <arg name="do_viz"  default="false" />
 
     <env name="LD_LIBRARY_PATH" value="/opt/tensorrt853/lib:/opt/cudnn860/lib:$(optenv LD_LIBRARY_PATH)" />
     
