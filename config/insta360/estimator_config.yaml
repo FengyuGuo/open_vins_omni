@@ -47,7 +47,7 @@ init_max_features: 200 # how many features to track during initialization (saves
 init_dyn_use: true # if dynamic initialization should be used
 init_dyn_mle_opt_calib: false # if we should optimize calibration during intialization (not recommended)
 init_dyn_mle_max_iter: 50 # how many iterations the MLE refinement should use (zero to skip the MLE)
-init_dyn_mle_max_time: 0.15 # how many seconds the MLE should be completed in
+init_dyn_mle_max_time: 0.5 # how many seconds the MLE should be completed in
 init_dyn_mle_max_threads: 6 # how many threads the MLE should use
 init_dyn_num_pose: 7 # number of poses to use within our window time (evenly spaced)
 init_dyn_min_deg: 10.0 # orientation change needed to try to init
@@ -111,8 +111,8 @@ up_aruco_chi2_multipler: 1
 
 # masks for our images
 use_mask: true
-mask0: mask00.png
-mask1: mask10.png
+mask0: mask00_narrow.png
+mask1: mask10_narrow.png
 
 # imu and camera spacial-temporal
 # imu config should also have the correct noise values

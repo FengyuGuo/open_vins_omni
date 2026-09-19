@@ -58,21 +58,21 @@ public:
   virtual void set_value(const Eigen::MatrixXd &calib) {
 
     // Assert we are of size eight
-    // assert(calib.rows() == 8);
+    assert(calib.rows() == 8 || calib.rows() == 9);
 
-    if(calib.rows() == 8)
-    {
-      PRINT_DEBUG("Camera calibration have 8 values\n");
-    }
-    else if(calib.rows() == 9)
-    {
-      PRINT_DEBUG("Camera calibration have 9 values. Only radtan distortion model is supported.\n");
-    }
-    else
-    {
-      PRINT_ERROR("Camera calibration have %zu values. Only 8 or 9 values are supported.\n", calib.rows());
-      assert(false);
-    }
+    // if(calib.rows() == 8)
+    // {
+    //   PRINT_DEBUG("Camera calibration have 8 values\n");
+    // }
+    // else if(calib.rows() == 9)
+    // {
+    //   PRINT_DEBUG("Camera calibration have 9 values. Only radtan distortion model is supported.\n");
+    // }
+    // else
+    // {
+    //   PRINT_ERROR("Camera calibration have %zu values. Only 8 or 9 values are supported.\n", calib.rows());
+    //   assert(false);
+    // }
 
     camera_values = calib;
 

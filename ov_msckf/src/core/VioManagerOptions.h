@@ -116,7 +116,9 @@ struct VioManagerOptions {
   void print_and_load_estimator(const std::shared_ptr<ov_core::YamlParser> &parser = nullptr) {
     PRINT_DEBUG("ESTIMATOR PARAMETERS:\n");
     state_options.print(parser);
+    init_options.cam_intrinsics_num = state_options.camera_calib_size;
     init_options.print_and_load(parser);
+
     if (parser != nullptr) {
       parser->parse_config("dt_slam_delay", dt_slam_delay);
       parser->parse_config("try_zupt", try_zupt);

@@ -116,6 +116,9 @@ struct InertialInitializerOptions {
   /// Initial IMU accelerometer bias values for dynamic initialization (will be optimized)
   Eigen::Vector3d init_dyn_bias_a = Eigen::Vector3d::Zero();
 
+  /// Number of camera intrinsics
+  std::vector<int> cam_intrinsics_num;
+
   /**
    * @brief This function will load print out all initializer settings loaded.
    * This allows for visual checking that everything was loaded properly from ROS/CMD parsers.
@@ -188,6 +191,10 @@ struct InertialInitializerOptions {
     }
     PRINT_DEBUG("  - init_dyn_bias_g: %.2f, %.2f, %.2f\n", init_dyn_bias_g(0), init_dyn_bias_g(1), init_dyn_bias_g(2));
     PRINT_DEBUG("  - init_dyn_bias_a: %.2f, %.2f, %.2f\n", init_dyn_bias_a(0), init_dyn_bias_a(1), init_dyn_bias_a(2));
+    PRINT_DEBUG("  - cam_intrinsics_num: \n");
+    for (int i = 0; i < (int)cam_intrinsics_num.size(); i++) {
+      PRINT_DEBUG("  -   %d \n", cam_intrinsics_num.at(i));
+    }
   }
 
   // NOISE / CHI2 ============================

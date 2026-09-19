@@ -1005,11 +1005,17 @@ bool DynamicInitializer::initialize(double &timestamp, Eigen::MatrixXd &covarian
 
   // Finally, compute the covariance
   ceres::Covariance::Options options_cov;
-  options_cov.null_space_rank = (!params.init_dyn_mle_opt_calib) * ((int)map_calib_cam2imu.size() * (6 + 8));
+  int num_cam_calib_states = 0;
+  for(int i = 0; i < (int)map_calib_cam2imu.size(); i++) {
+    num_cam_calib_states += (6 + params.cam_intrinsics_num.at(i));
+  }
+  PRINT_DEBUG("[init-d]: covariance null space rank: %d\n", (!params.init_dyn_mle_opt_calib) * num_cam_calib_states);
+  options_cov.null_space_rank = (!params.init_dyn_mle_opt_calib) * num_cam_calib_states; // If we are not optimizing calibration, then we have a null space of 6 + num_intrinsics
   options_cov.min_reciprocal_condition_number = params.init_dyn_min_rec_cond;
   // options_cov.algorithm_type = ceres::CovarianceAlgorithmType::DENSE_SVD;
   options_cov.apply_loss_function = true; // Better consistency if we use this
   options_cov.num_threads = params.init_dyn_mle_max_threads;
+  // options_cov.num_threads = 16;
   ceres::Covariance problem_cov(options_cov);
   bool success = problem_cov.Compute(covariance_blocks, &problem);
   if (!success) {
