@@ -402,7 +402,14 @@ void ROS1Visualizer::visualize_final() {
       std::shared_ptr<Vec> calib = _app->get_state()->_cam_intrinsics.at(i);
       PRINT_INFO(REDPURPLE "cam%d intrinsics:\n" RESET, (int)i);
       PRINT_INFO(REDPURPLE "%.3f,%.3f,%.3f,%.3f\n" RESET, calib->value()(0), calib->value()(1), calib->value()(2), calib->value()(3));
-      PRINT_INFO(REDPURPLE "%.5f,%.5f,%.5f,%.5f\n\n" RESET, calib->value()(4), calib->value()(5), calib->value()(6), calib->value()(7));
+      if(calib->value().size() == 8)
+      {
+        PRINT_INFO(REDPURPLE "%.5f,%.5f,%.5f,%.5f\n\n" RESET, calib->value()(4), calib->value()(5), calib->value()(6), calib->value()(7));
+      }
+      else if(calib->value().size() == 9)
+      {
+        PRINT_INFO(REDPURPLE "%.5f,%.5f,%.5f,%.5f,%.5f\n\n" RESET, calib->value()(4), calib->value()(5), calib->value()(6), calib->value()(7), calib->value()(8));
+      }
     }
   }
 
@@ -414,10 +421,10 @@ void ROS1Visualizer::visualize_final() {
       T_CtoI.block(0, 0, 3, 3) = quat_2_Rot(calib->quat()).transpose();
       T_CtoI.block(0, 3, 3, 1) = -T_CtoI.block(0, 0, 3, 3) * calib->pos();
       PRINT_INFO(REDPURPLE "T_C%dtoI:\n" RESET, i);
-      PRINT_INFO(REDPURPLE "%.3f,%.3f,%.3f,%.3f,\n" RESET, T_CtoI(0, 0), T_CtoI(0, 1), T_CtoI(0, 2), T_CtoI(0, 3));
-      PRINT_INFO(REDPURPLE "%.3f,%.3f,%.3f,%.3f,\n" RESET, T_CtoI(1, 0), T_CtoI(1, 1), T_CtoI(1, 2), T_CtoI(1, 3));
-      PRINT_INFO(REDPURPLE "%.3f,%.3f,%.3f,%.3f,\n" RESET, T_CtoI(2, 0), T_CtoI(2, 1), T_CtoI(2, 2), T_CtoI(2, 3));
-      PRINT_INFO(REDPURPLE "%.3f,%.3f,%.3f,%.3f\n\n" RESET, T_CtoI(3, 0), T_CtoI(3, 1), T_CtoI(3, 2), T_CtoI(3, 3));
+      PRINT_INFO(REDPURPLE "%.5f,%.5f,%.5f,%.5f,\n" RESET, T_CtoI(0, 0), T_CtoI(0, 1), T_CtoI(0, 2), T_CtoI(0, 3));
+      PRINT_INFO(REDPURPLE "%.5f,%.5f,%.5f,%.5f,\n" RESET, T_CtoI(1, 0), T_CtoI(1, 1), T_CtoI(1, 2), T_CtoI(1, 3));
+      PRINT_INFO(REDPURPLE "%.5f,%.5f,%.5f,%.5f,\n" RESET, T_CtoI(2, 0), T_CtoI(2, 1), T_CtoI(2, 2), T_CtoI(2, 3));
+      PRINT_INFO(REDPURPLE "%.5f,%.5f,%.5f,%.5f\n\n" RESET, T_CtoI(3, 0), T_CtoI(3, 1), T_CtoI(3, 2), T_CtoI(3, 3));
     }
   }
 

@@ -1,0 +1,36 @@
+%YAML:1.0 # need to specify the file type at the top!
+
+
+#############################
+####### Pinhole Equi ########
+#############################
+# Try new calibration here
+cam0:
+  T_cam_imu:
+    - [1.00000,-0.00236,0.00009, 0.02053797429896389]
+    - [ 0.00015,0.02391,-0.99971, 0.01552667324570444]
+    - [0.00236,0.99971,0.02391, 0.02404469750801745]
+    - [0, 0, 0, 1]
+  cam_overlaps: []
+  camera_model: pinhole
+  distortion_coeffs: [0.35628,-0.32950,-0.00004,-0.00142,-0.81717]
+  distortion_model: omni
+  intrinsics: [2.01493   , 1357.134, 1341.59 ,  744.11 ,  725.632]
+  resolution: [1472, 1440]
+  rostopic: /image_00
+  timeshift_cam_imu: -0.004024710194977835
+
+cam1:
+  T_cam_imu:
+    - [-0.99980,0.01477,-0.01320, -0.02086878945182317]
+    - [-0.01337,-0.01143,0.99985, 0.01585948405513698]
+    - [0.01461,0.99983,0.01163, 0.01415305787719883]
+    - [0, 0, 0, 1]
+  cam_overlaps: []
+  camera_model: pinhole
+  distortion_coeffs: [0.37333,-0.28475,-0.01705,-0.00945,-0.93741]
+  distortion_model: omni
+  intrinsics: [2.01493000e+00, 1362.862, 1347.088,  755.648,  734.17]
+  resolution: [1472, 1440]
+  rostopic: /image_10
+  timeshift_cam_imu: -0.005250077842923942
