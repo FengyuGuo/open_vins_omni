@@ -117,7 +117,7 @@ mask1: mask1_square.png
 # imu and camera spacial-temporal
 # imu config should also have the correct noise values
 relative_config_imu: "kalibr_imu_chain.yaml"
-relative_config_imucam: "kalibr_imucam_chain_kalibr.yaml"
+relative_config_imucam: "kalibr_imucam_chain_kalibr_ext.yaml"
 camera_calib_size: [8, 8] # size of camera calibration vector for each camera (used to check if we have the right number of intrinsics and distortion coefficients)
 
 # superpoint and superglue related config. useless in this config but make the program run
