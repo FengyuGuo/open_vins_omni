@@ -298,7 +298,11 @@ private:
    */
   void omni_distortion(double mx_u, double my_u, double *dx_u, double *dy_u) const {
     double mx2_u, my2_u, mxy_u, rho2_u, rad_dist_u;
-    double k1 = camera_values(4), k2 = camera_values(5), p1 = camera_values(6), p2 = camera_values(7), k3 = camera_values(8);
+    double k1 = camera_values(4), k2 = camera_values(5), p1 = camera_values(6), p2 = camera_values(7), k3 = 0;
+    if(camera_values.size() == 9)
+    {
+        k3 = camera_values(8);
+    }
     mx2_u = mx_u * mx_u;
     my2_u = my_u * my_u;
     mxy_u = mx_u * my_u;
@@ -311,7 +315,11 @@ private:
   void omni_distortion(double mx_u, double my_u, double *dx_u, double *dy_u, double *dxdmx, double *dydmx, double *dxdmy,
                        double *dydmy) const {
     double mx2_u, my2_u, mxy_u, rho2_u, rad_dist_u;
-    double k1 = camera_values(4), k2 = camera_values(5), p1 = camera_values(6), p2 = camera_values(7), k3 = camera_values(8);
+    double k1 = camera_values(4), k2 = camera_values(5), p1 = camera_values(6), p2 = camera_values(7), k3 = 0;
+    if(camera_values.size() == 9)
+    {
+        k3 = camera_values(8);
+    }
     mx2_u = mx_u * mx_u;
     my2_u = my_u * my_u;
     mxy_u = mx_u * my_u;

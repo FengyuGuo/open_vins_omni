@@ -4,6 +4,8 @@
 #############################
 ####### Pinhole Equi ########
 #############################
+
+# calibration from https://github.com/ori-drs/ScaRF-SLAM/blob/main/config/open_vins/kalibr_imucam_chain.yaml
 cam0:
   T_cam_imu:
     - [-0.002509588493586068, -0.007951560887570486, -0.9999652367182805, 0.02053797429896389]
